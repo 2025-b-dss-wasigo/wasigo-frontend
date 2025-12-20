@@ -1,0 +1,326 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import "tailwindcss";
+
+/* ===== WasiGo Design System - Theme Variables ===== */
+:root {
+  /* Primary Colors */
+  --primary: #0d8a6f;
+  --primary-foreground: #f4ffff;
+  --primary-light: #21b189;
+  --primary-dark: #07624f;
+
+  /* Background & Foreground */
+  --background: #fbfefe;
+  --foreground: #182020;
+
+  /* Card */
+  --card: #ffffff;
+  --card-foreground: #182020;
+
+  /* Popover */
+  --popover: #ffffff;
+  --popover-foreground: #182020;
+
+  /* Secondary */
+  --secondary: #f5f9f9;
+  --secondary-foreground: #202626;
+
+  /* Muted */
+  --muted: #f1f7f7;
+  --muted-foreground: #647373;
+
+  /* Accent */
+  --accent: #e6f6f2;
+  --accent-foreground: #147459;
+
+  /* Status  */
+  --destructive: #e5352b;
+  --destructive-foreground: #ffffff;
+  --success: #1f9a57;
+  --success-foreground: #ffffff;
+  --warning: #f5a300;
+  --warning-foreground: #6a4c00;
+  --info: #0390f5;
+  --info-foreground: #ffffff;
+
+  /* UI Elements */
+  --border: #e1eded;
+  --input: #e1eded;
+  --ring: #0d8a6f;
+
+  /* Sidebar */
+  --sidebar-background: #075646;
+  --sidebar-foreground: #f4ffff;
+  --sidebar-primary: #21b189;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0f745b;
+  --sidebar-accent-foreground: #f4ffff;
+  --sidebar-border: #166e55;
+  --sidebar-ring: #21b189;
+
+  /* Border Radius */
+  --radius: 0.75rem;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Font Family */
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+/* ===== Base Styles ===== */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ===== Custom Utilities ===== */
+@utility card-elevated {
+  background-color: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  box-shadow: 0 4px 6px -1px rgba(33, 51, 51, 0.1), 
+              0 2px 4px -2px rgba(33, 51, 51, 0.1);
+}
+
+@utility card-interactive {
+  background-color: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  box-shadow: 0 4px 6px -1px rgba(33, 51, 51, 0.1), 
+              0 2px 4px -2px rgba(33, 51, 51, 0.1);
+  transition: all 300ms;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(33, 51, 51, 0.1), 
+                0 4px 6px -4px rgba(33, 51, 51, 0.1);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    transform: translateY(-0.125rem);
+  }
+}
+
+/* Status Badges */
+@utility badge-success {
+  background-color: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 20%, transparent);
+}
+
+@utility badge-warning {
+  background-color: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 20%, transparent);
+}
+
+@utility badge-danger {
+  background-color: color-mix(in srgb, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+  border: 1px solid color-mix(in srgb, var(--destructive) 20%, transparent);
+}
+
+@utility badge-info {
+  background-color: color-mix(in srgb, var(--info) 10%, transparent);
+  color: var(--info);
+  border: 1px solid color-mix(in srgb, var(--info) 20%, transparent);
+}
+
+/* ===== Gradient Utilities ===== */
+@layer utilities {
+  .gradient-primary {
+    background-image: linear-gradient(135deg, #0d8a6f, #21b189);
+  }
+  
+  .gradient-hero {
+    background-image: linear-gradient(135deg, #064538, #0d8a6f, #21b189);
+  }
+  
+  .gradient-card {
+    background-image: linear-gradient(145deg, #ffffff, #f9fdfd);
+  }
+  
+  .gradient-surface {
+    background-image: linear-gradient(180deg, #fbfefe, #f3f8f8);
+  }
+  
+  /* Shadow Utilities */
+  .shadow-custom-sm {
+    box-shadow: 0 1px 2px 0 rgba(33, 51, 51, 0.05);
+  }
+  
+  .shadow-custom-md {
+    box-shadow: 0 4px 6px -1px rgba(33, 51, 51, 0.1), 
+                0 2px 4px -2px rgba(33, 51, 51, 0.1);
+  }
+  
+  .shadow-custom-lg {
+    box-shadow: 0 10px 15px -3px rgba(33, 51, 51, 0.1), 
+                0 4px 6px -4px rgba(33, 51, 51, 0.1);
+  }
+  
+  .shadow-custom-xl {
+    box-shadow: 0 20px 25px -5px rgba(33, 51, 51, 0.1), 
+                0 8px 10px -6px rgba(33, 51, 51, 0.1);
+  }
+  
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(13, 138, 111, 0.3);
+  }
+
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(13, 138, 111, 0.3);
+  }
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes logoSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animation Utility Classes */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+  
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+  
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  .animate-logo-spin {
+    animation: logoSpin infinite 20s linear;
+  }
+  
+  /* Stagger delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+}
+
+/* ===== Component Styles (from original App.css) ===== */
+@layer utilities {
+  #root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+  }
+
+  .logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
+
+  .logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+      animation: logoSpin infinite 20s linear;
+    }
+  }
+
+  .card {
+    padding: 2em;
+  }
+
+  .read-the-docs {
+    color: #888;
+  }
+}
