@@ -311,7 +311,7 @@ export default function Home() {
                 Únete a miles de estudiantes que ya viajan de forma más inteligente.
                 Regístrate gratis y comienza hoy.
               </p>
-              <Link href="/registro">
+              <Link href="/register">
                 <Button size="lg" variant="secondary" className="gap-2">
                   Crear mi cuenta gratis
                   <ArrowRight className="w-5 h-5" />
@@ -323,7 +323,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-(--border)">
+      <footer className="py-6 px-4 sm:px-6 lg:px-8 border-t border-(--border)">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
