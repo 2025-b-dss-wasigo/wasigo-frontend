@@ -114,6 +114,20 @@ export interface Transaccion {
   estado: 'completada' | 'pendiente' | 'fallida';
 }
 
+export interface Usuario {
+  id: string;
+  alias: string;
+  nombre: string;
+  email: string;
+  rol: 'pasajero' | 'conductor' | 'soporte' | 'admin';
+  calificacion: number;
+  estado: 'activo' | 'baneado';
+  fechaRegistro: string;
+}
+
+// Alias para mantener compatibilidad
+export type Solicitud = SolicitudConductor;
+
 // Mock Routes
 export const mockRutas: Ruta[] = [
   {
@@ -605,7 +619,7 @@ export const mockTransacciones: Transaccion[] = [
 ];
 
 // Mock usuarios para admin
-export const mockUsuarios = [
+export const mockUsuarios: Usuario[] = [
   { id: '1', alias: 'Pasajero9201', nombre: 'Carlos Mendoza', email: 'test@epn.edu.ec', rol: 'pasajero', calificacion: 4.8, estado: 'activo', fechaRegistro: '2024-09-15' },
   { id: '2', alias: 'Conductor5432', nombre: 'María González', email: 'conductor@epn.edu.ec', rol: 'conductor', calificacion: 4.9, estado: 'activo', fechaRegistro: '2024-08-20' },
   { id: '3', alias: 'Soporte001', nombre: 'Ana Rodríguez', email: 'soporte@epn.edu.ec', rol: 'soporte', calificacion: 5.0, estado: 'activo', fechaRegistro: '2024-07-01' },
