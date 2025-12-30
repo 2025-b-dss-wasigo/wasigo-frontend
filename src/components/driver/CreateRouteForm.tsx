@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { FormularioRuta } from '@/interfaces';
+import PlacesAutocomplete from '@/components/maps/PlacesAutocomplete';
 
 const diasSemana = [
   { id: 'lunes', label: 'Lunes' },
@@ -26,6 +27,21 @@ const diasSemana = [
 const horasDisponibles = [
   '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
   '09:00', '12:00', '13:00', '14:00', '17:00', '18:00', '19:00'
+];
+
+const origenesDisponibles = [
+  {
+    id: 'campus-principal',
+    label: 'Campus Principal EPN (Parqueaderos del CEC) Av Toledo',
+    value: 'Campus Principal EPN (Parqueaderos del CEC) Av Toledo',
+    coordenadas: { lat: -0.2108, lng: -78.4903 }
+  },
+  {
+    id: 'campus-bosque',
+    label: 'Campus EPN El Bosque',
+    value: 'Campus EPN El Bosque',
+    coordenadas: { lat: -0.1750, lng: -78.4900 }
+  }
 ];
 
 export function CreateRouteForm() {
@@ -54,7 +70,7 @@ export function CreateRouteForm() {
     toast.success('¡Ruta creada exitosamente!', {
       description: 'Tu ruta está ahora visible para los pasajeros.'
     });
-    navigate.push('/mis-rutas');
+    navigate.push('/my-routes');
   };
 
   return (
@@ -94,14 +110,31 @@ export function CreateRouteForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="origen">Punto de Origen</Label>
-              <Input
-                id="origen"
-                placeholder="Ej: San Rafael, Valle de los Chillos"
+              <Label htmlFor="origen">Punto de Origen (Campus EPN)</Label>
+              <Select
                 value={formData.origen}
-                onChange={(e) => setFormData({ ...formData, origen: e.target.value })}
-                icon={<MapPin className="w-4 h-4" />}
-              />
+                onValueChange={(v) => {
+                  const origenSeleccionado = origenesDisponibles.find(o => o.value === v);
+                  if (origenSeleccionado) {
+                    console.log("Origen seleccionado:", {
+                      campus: origenSeleccionado.label,
+                      coordenadas: origenSeleccionado.coordenadas
+                    });
+                  }
+                  setFormData({ ...formData, origen: v });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona el campus de origen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {origenesDisponibles.map((origen) => (
+                    <SelectItem key={origen.id} value={origen.value}>
+                      {origen.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex items-center justify-center py-2">
@@ -110,12 +143,12 @@ export function CreateRouteForm() {
 
             <div className="space-y-2">
               <Label htmlFor="destino">Punto de Destino</Label>
-              <Input
-                id="destino"
-                placeholder="Ej: Escuela Politécnica Nacional"
-                value={formData.destino}
-                onChange={(e) => setFormData({ ...formData, destino: e.target.value })}
-                icon={<MapPin className="w-4 h-4" />}
+              <PlacesAutocomplete
+                placeholder="Ej: San Rafael, Valle de los Chillos"
+                defaultValue={formData.destino}
+                onPlaceSelect={(place) => {
+                  setFormData({ ...formData, destino: place.address });
+                }}
               />
             </div>
 
