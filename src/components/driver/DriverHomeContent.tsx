@@ -10,6 +10,7 @@ import {
   Star,
   Wallet,
   ArrowRight,
+  MapPin,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Ruta } from '@/data/mockData';
@@ -64,7 +65,7 @@ export function DriverHomeContent({ rutasActivas, stats }: DriverHomeContentProp
       </div>
 
       {/* Acciones Rápidas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Button variant="hero" size="lg" className="h-auto py-4" asChild>
           <Link href="/create-route" className="flex flex-col items-center gap-2">
             <Route className="w-6 h-6" />
@@ -81,6 +82,12 @@ export function DriverHomeContent({ rutasActivas, stats }: DriverHomeContentProp
           <Link href="/earnings" className="flex flex-col items-center gap-2">
             <Wallet className="w-6 h-6" />
             <span>Retirar Fondos</span>
+          </Link>
+        </Button>
+        <Button variant="default" size="lg" className="h-auto py-4 bg-blue-600 hover:bg-blue-700" asChild>
+          <Link href="/driver-route/demo-123" className="flex flex-col items-center gap-2">
+            <MapPin className="w-6 h-6" />
+            <span>🗺️ Ver Ruta Demo</span>
           </Link>
         </Button>
       </div>
