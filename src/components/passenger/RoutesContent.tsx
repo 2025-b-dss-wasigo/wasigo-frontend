@@ -15,6 +15,7 @@ import {
 import { Search, MapPin, Clock, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Ruta } from '@/data/mockData';
+import PlacesAutocomplete from '@/components/maps/PlacesAutocomplete';
 
 interface RoutesContentProps {
   rutas: Ruta[];
@@ -65,12 +66,12 @@ export function RoutesContent({ rutas }: RoutesContentProps) {
 
           <div className="flex-1">
             <Label className="sr-only">Destino</Label>
-            <Input
+            <PlacesAutocomplete
               placeholder="¿A dónde vas?"
-              value={destino}
-              onChange={(e) => setDestino(e.target.value)}
-              icon={<Search className="w-5 h-5" />}
-              className="h-12"
+              defaultValue={destino}
+              onPlaceSelect={(place) => {
+                setDestino(place.address);
+              }}
             />
           </div>
 

@@ -115,6 +115,11 @@ export function DashboardContent({ estadisticas, proximosViajes, rutasDisponible
 
           <div className="flex items-center gap-3 mt-4 pt-4 border-t border-(--border)">
             <Button variant="outline">Cancelar viaje</Button>
+            <Button variant="default" className="bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/passenger-route/demo-123">
+                🗺️ Ver en Mapa
+              </Link>
+            </Button>
           </div>
         </div>
       )}
