@@ -42,7 +42,6 @@ export default function RegisterForm() {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     setLoading(false);
-    setStep(3); // Show verification step
   };
 
   const renderStep1 = () => (
@@ -187,54 +186,6 @@ export default function RegisterForm() {
     </div>
   );
 
-  const renderStep3 = () => (
-    <div className="text-center space-y-6 animate-fade-in">
-      <div className="w-20 h-20 mx-auto rounded-full bg-(--success)/10 flex items-center justify-center">
-        <Mail className="w-10 h-10 text-(--success)" />
-      </div>
-
-      <div>
-        <h3 className="text-xl font-bold text-(--foreground) mb-2">¡Verifica tu correo!</h3>
-        <p className="text-(--muted-foreground)">
-          Hemos enviado un código de verificación a<br />
-          <span className="font-medium text-(--foreground)">{formData.email}</span>
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Código de Verificación</Label>
-        <div className="flex gap-2 justify-center">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <input
-              key={i}
-              type="text"
-              maxLength={1}
-              className="w-12 h-14 text-center text-xl font-bold rounded-lg border border-(--input) bg-(--background) focus:border-(--primary) focus:ring-2 focus:ring-(--ring)"
-            />
-          ))}
-        </div>
-        <p className="text-xs text-(--muted-foreground)">El código expira en 15 minutos</p>
-      </div>
-
-      <Button
-        variant="hero"
-        size="lg"
-        className="w-full"
-        onClick={() => {
-          toast.success('¡Cuenta verificada exitosamente!');
-          router.replace('/login');
-        }}
-      >
-        Verificar Cuenta
-        <CheckCircle className="w-5 h-5" />
-      </Button>
-
-      <button className="text-sm text-(--primary) hover:underline">
-        Reenviar código (3 intentos restantes)
-      </button>
-    </div>
-  );
-
   return (
     <>
       {step < 3 && (
@@ -264,7 +215,6 @@ export default function RegisterForm() {
       <form onSubmit={handleSubmit}>
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
-        {step === 3 && renderStep3()}
       </form>
 
       {step < 3 && (
