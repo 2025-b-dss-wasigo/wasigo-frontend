@@ -1,7 +1,3 @@
-// DESHABILITADO TEMPORALMENTE - Falta dependencia @react-google-maps/api
-// TODO: Instalar: npm install @react-google-maps/api
-
-/*
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -12,7 +8,6 @@ const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["pla
 
 interface PlacesAutocompleteProps {
   onPlaceSelect: (place: { address: string; lat: number; lng: number }) => void;
-
   placeholder?: string;
   defaultValue?: string;
 }
@@ -145,18 +140,4 @@ export default function PlacesAutocomplete({
       )}
     </div>
   );
-}
-*/
-
-// Exportar componente dummy mientras se instala la dependencia
-export default function PlacesAutocomplete({ 
-  onPlaceSelect, 
-  placeholder = "Buscar dirección...", 
-  defaultValue = "" 
-}: { 
-  onPlaceSelect?: (place: { address: string; lat: number; lng: number }) => void; 
-  placeholder?: string; 
-  defaultValue?: string; 
-}) {
-  return <input type="text" placeholder={placeholder} defaultValue={defaultValue} className="w-full px-3 py-2 border rounded-md" disabled />;
 }
