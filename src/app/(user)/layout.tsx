@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { redirect } from "next/navigation";
-import { getAccessToken, getProfile, getRole } from "../../actions";
+import { getAccessToken, getProfile, getRole, getRefreshToken } from "../../actions";
 import { LayoutClient } from "../../components/layout/LayoutClient";
 
 export default async function AuthLayout({
@@ -11,9 +11,10 @@ export default async function AuthLayout({
 }) {
 
   const token = await getAccessToken();
+  const refreshToken = await getRefreshToken();
 
-  if (!token) {
-    redirect('/login');
+  if (!token && !refreshToken) {
+    redirect('/auth/login');
   }
 
   const [profileResponse, roleResponse] = await Promise.all([
@@ -22,11 +23,11 @@ export default async function AuthLayout({
   ]);
 
   if (!profileResponse.success || !profileResponse.data) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   if (!roleResponse.success || !roleResponse.data) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   return (

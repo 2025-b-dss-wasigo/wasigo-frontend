@@ -20,7 +20,7 @@ export default function DriverRoutePage({ params }: PageProps) {
           ← Volver
         </Button>
         <h1 className="text-2xl font-bold">Ruta en Tiempo Real</h1>
-        <div className="w-20" /> {/* Spacer para centrar el título */}
+        <div className="w-20" />
       </div>
 
       <div className="relative">

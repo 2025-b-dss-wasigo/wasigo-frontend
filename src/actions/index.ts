@@ -8,7 +8,7 @@ export {
   setAccessToken,
   setRefreshToken,
   deleteAccessToken,
-  deleteRefreshToken
+  deleteRefreshToken,
 } from "./cookies/manage-cookies";
 export { authForgotPassword } from "./auth/forgot-password";
 export { authResetPassword } from "./auth/reset-password";
