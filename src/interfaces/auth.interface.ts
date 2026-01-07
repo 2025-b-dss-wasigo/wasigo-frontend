@@ -17,15 +17,7 @@ export interface RegisterFormData {
   aceptaTerminos: boolean;
 }
 
-export interface AuthResponse {
-  success: boolean;
-  message?: string;
-  data?: {
-    user: User;
-    token: string;
-  };
-  error?: string;
-}
+
 
 export interface User {
   id: string;

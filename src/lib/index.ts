@@ -1,0 +1,6 @@
+export { validateNombre } from './validations/password-schema'
+export { validateApellido } from './validations/password-schema'
+export { validateEmail } from './validations/password-schema'
+export { validatePassword } from './validations/password-schema'
+export { validateCelular } from './validations/password-schema'
+export { isCelularValid } from './validations/password-schema'

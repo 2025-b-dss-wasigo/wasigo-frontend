@@ -1,13 +1,20 @@
 'use client'
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button, Input, Label } from '@/components';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import type { LoginCredentials } from '@/interfaces';
+import ForgotPasswordModal from './ForgotPasswordModal';
+import { authLogin } from '../../actions';
+import { UserRole } from '../../interfaces';
+
+const routes: Record<UserRole, string> = {
+  'USER': '/passenger',
+  'PASAJERO': '/passenger',
+  'CONDUCTOR': '/driver',
+  'ADMIN': '/admin',
+}
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -15,30 +22,29 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-  const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
     setError('');
+
     setLoading(true);
 
-    try {
-      const credentials: LoginCredentials = { email, password };
-      const success = await login(credentials.email, credentials.password);
+    const response = await authLogin({ email, password });
 
-      if (success) {
-        toast.success('¡Bienvenido a WasiGo!');
-        router.push('/dashboard');
-      } else {
-        setError('Credenciales incorrectas. Intenta nuevamente.');
-      }
-    } catch (err) {
-      setError('Error al iniciar sesión. Intenta nuevamente.');
-    } finally {
-      setLoading(false);
+    if (response.success) {
+      toast.success('¡Bienvenido a WasiGo!');
+      response.data && router.push(routes[response.data.role])
+      return;
     }
+
+    setError(response.message!);
+    let errorMessage = 'Error al registrarse';
+    toast.error(errorMessage);
+    setLoading(false)
   };
 
   return (
@@ -61,14 +67,25 @@ export default function LoginForm() {
           icon={<Mail className="w-5 h-5" />}
           required
         />
+        <p className="text-xs text-(--muted-foreground)">Debe ser @epn.edu.ec</p>
+        {email && email.endsWith('@epn.edu.ec') && (
+          <p className="text-xs text-(--success)">✓ Email válido</p>
+        )}
+        {email && !email.endsWith('@epn.edu.ec') && (
+          <p className="text-xs text-(--destructive)">✗ Solo correos @epn.edu.ec</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Contraseña</Label>
-          <Link href="/recuperar" className="text-sm text-(--primary) hover:underline">
+          <button
+            type="button"
+            onClick={() => setShowForgotPasswordModal(true)}
+            className="text-sm text-(--primary) hover:underline"
+          >
             ¿Olvidaste tu contraseña?
-          </Link>
+          </button>
         </div>
         <div className="relative">
           <Input
@@ -95,11 +112,16 @@ export default function LoginForm() {
         variant="hero"
         size="lg"
         className="w-full"
-        disabled={loading}
+        disabled={loading || !email || !password || !email.endsWith('@epn.edu.ec') || password.length < 7}
       >
         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         {!loading && <ArrowRight className="w-5 h-5" />}
       </Button>
+
+      <ForgotPasswordModal
+        open={showForgotPasswordModal}
+        onOpenChange={setShowForgotPasswordModal}
+      />
     </form>
   );
 }

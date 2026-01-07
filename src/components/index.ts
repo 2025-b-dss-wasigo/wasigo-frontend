@@ -22,6 +22,7 @@ export * from './common/WithdrawModal';
 // ========== COMPONENTES DE LAYOUT ==========
 export * from './layout/Sidebar';
 export * from './layout/TopBar';
+export { LayoutClient } from './layout/LayoutClient';
 
 // ========== COMPONENTES UI (Radix/Shadcn) ==========
 export { Badge, badgeVariants } from './ui/badge';
