@@ -1,18 +1,24 @@
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { ClientOnly } from '@/components/common/ClientOnly';
 import { MyTripsContent } from '@/components/passenger/MyTripsContent';
 import { MyTripsSkeleton } from '@/components/common/SkeletonLoaders';
-import { obtenerViajesPasajero } from '@/lib/passengerData';
+import { getMyBookings } from '@/actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function MyTripsPage() {
-  const pasajeroId = 'pasajero1'; // TODO: Obtener del contexto de autenticación
-  const viajes = await obtenerViajesPasajero(pasajeroId);
+  const response = await getMyBookings();
+
+  if (!response.success) {
+    redirect('/auth/login');
+  }
+
+  const bookings = response.data?.data || [];
 
   return (
     <ClientOnly fallback={<MyTripsSkeleton />}>
-      <MyTripsContent viajes={viajes} />
+      <MyTripsContent bookings={bookings} />
     </ClientOnly>
   );
 }

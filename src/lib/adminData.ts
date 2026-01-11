@@ -47,7 +47,6 @@ export async function obtenerTransacciones(): Promise<Transaccion[]> {
 }
 
 export async function obtenerSolicitudes(): Promise<Solicitud[]> {
-  await delay(2000);
   return mockSolicitudes;
 }
 

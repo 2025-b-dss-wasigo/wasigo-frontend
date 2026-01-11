@@ -17,6 +17,7 @@ import {
   Wallet,
   CheckCircle,
   X,
+  MapPin,
 } from 'lucide-react';
 import { redirect, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -63,17 +64,16 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: PlusCircle, label: 'Crear Ruta', href: '/driver/create-route', roles: ['CONDUCTOR'] },
       { icon: Clock, label: 'Mis Rutas', href: '/driver/my-routes', roles: ['CONDUCTOR'] },
-      { icon: CheckCircle, label: 'Iniciar Ruta', href: '/driver/validate-otp', roles: ['CONDUCTOR'] },
+      { icon: MapPin, label: 'Ver en el Mapa', href: '/driver/routes-map', roles: ['CONDUCTOR'] },
+      { icon: CheckCircle, label: 'Validar OTP', href: '/driver/validate-otp', roles: ['CONDUCTOR'] },
       { icon: Wallet, label: 'Mis Fondos', href: '/driver/earnings', roles: ['CONDUCTOR'] },
     ]
   },
   {
     title: 'ADMIN',
     items: [
-      { icon: Users, label: 'Usuarios', href: '/usuarios', roles: ['ADMIN'] },
-      { icon: FileText, label: 'Solicitudes', href: '/solicitudes', roles: ['ADMIN'], badge: 2 },
-      { icon: CreditCard, label: 'Transacciones', href: '/transacciones', roles: ['ADMIN'] },
-      { icon: Shield, label: 'Auditoría', href: '/auditoria', roles: ['ADMIN'] },
+      { icon: FileText, label: 'Solicitudes', href: '/admin/requests', roles: ['ADMIN'], badge: 2 },
+      { icon: CreditCard, label: 'Transacciones', href: '/admin/transactions', roles: ['ADMIN'] },
     ]
   },
   {
@@ -236,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
                             : "hover:bg-(--sidebar-accent) text-(--sidebar-foreground)/80 hover:text-(--sidebar-foreground)"
                         )}
                       >
-                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <item.icon className="w-5 h-5 shrink-0" />
                         {isOpen && (
                           <>
                             <span className="flex-1 text-sm font-medium">{item.label}</span>

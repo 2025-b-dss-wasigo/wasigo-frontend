@@ -107,26 +107,12 @@ export interface Chat {
 export interface Transaccion {
   id: string;
   fecha: string;
-  tipo: 'ingreso' | 'egreso' | 'reversion';
+  tipo: 'ingreso' | 'egreso' | 'pendiente';
   monto: number;
   concepto: string;
   usuario: string;
   estado: 'completada' | 'pendiente' | 'fallida';
 }
-
-export interface Usuario {
-  id: string;
-  alias: string;
-  nombre: string;
-  email: string;
-  rol: 'pasajero' | 'conductor' | 'soporte' | 'admin';
-  calificacion: number;
-  estado: 'activo' | 'baneado';
-  fechaRegistro: string;
-}
-
-// Alias para mantener compatibilidad
-export type Solicitud = SolicitudConductor;
 
 // Mock Routes
 export const mockRutas: Ruta[] = [
@@ -612,14 +598,14 @@ export const mockMensajes: Mensaje[] = [
 export const mockTransacciones: Transaccion[] = [
   { id: 'tr1', fecha: '2025-01-14', tipo: 'ingreso', monto: 7.50, concepto: 'Viaje r1 - 3 pasajeros', usuario: 'Conductor5432', estado: 'completada' },
   { id: 'tr2', fecha: '2025-01-13', tipo: 'ingreso', monto: 2.00, concepto: 'Viaje r2 - 1 pasajero', usuario: 'Conductor7821', estado: 'completada' },
-  { id: 'tr3', fecha: '2025-01-13', tipo: 'reversion', monto: -2.50, concepto: 'Cancelación viaje r5', usuario: 'Pasajero9102', estado: 'completada' },
+  { id: 'tr3', fecha: '2025-01-13', tipo: 'ingreso', monto: -2.50, concepto: 'Cancelación viaje r5', usuario: 'Pasajero9102', estado: 'completada' },
   { id: 'tr4', fecha: '2025-01-12', tipo: 'egreso', monto: -50.00, concepto: 'Retiro mensual', usuario: 'Conductor3344', estado: 'completada' },
   { id: 'tr5', fecha: '2025-01-11', tipo: 'ingreso', monto: 9.00, concepto: 'Viaje r3 - 3 pasajeros', usuario: 'Conductor3344', estado: 'completada' },
   { id: 'tr6', fecha: '2025-01-10', tipo: 'egreso', monto: -127.50, concepto: 'Retiro mensual', usuario: 'Conductor5432', estado: 'pendiente' },
 ];
 
 // Mock usuarios para admin
-export const mockUsuarios: Usuario[] = [
+export const mockUsuarios = [
   { id: '1', alias: 'Pasajero9201', nombre: 'Carlos Mendoza', email: 'test@epn.edu.ec', rol: 'pasajero', calificacion: 4.8, estado: 'activo', fechaRegistro: '2024-09-15' },
   { id: '2', alias: 'Conductor5432', nombre: 'María González', email: 'conductor@epn.edu.ec', rol: 'conductor', calificacion: 4.9, estado: 'activo', fechaRegistro: '2024-08-20' },
   { id: '3', alias: 'Soporte001', nombre: 'Ana Rodríguez', email: 'soporte@epn.edu.ec', rol: 'soporte', calificacion: 5.0, estado: 'activo', fechaRegistro: '2024-07-01' },

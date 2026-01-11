@@ -6,11 +6,13 @@ export interface User {
   alias: string;
   nombre: string;
   apellido: string;
+  email: string;
   celular: string;
   avatarUrl: string;
   rating: string;
   totalViajes: number;
   role: UserRole;
+  verificado: boolean;
 }
 
 interface AuthStore {
@@ -26,6 +28,7 @@ interface AuthStore {
   setRequiresVerification: (requires: boolean) => void;
   switchRole: (role: UserRole) => void;
   updateUser: (updates: Partial<User>) => void;
+  verifyUser: () => void;
   logout: () => void;
 }
 
@@ -38,6 +41,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setUser: (userData: User) => {
     const user = {
       ...userData,
+      verificado: userData.role !== 'USER',
     };
     set({
       user,
@@ -79,6 +83,20 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (!state.user) return state;
       return {
         user: { ...state.user, ...updates },
+      };
+    });
+  },
+
+  verifyUser: () => {
+    set((state) => {
+      if (!state.user) return state;
+      return {
+        user: {
+          ...state.user,
+          role: 'PASAJERO' as UserRole,
+          verificado: true,
+        },
+        requiresVerification: false,
       };
     });
   },

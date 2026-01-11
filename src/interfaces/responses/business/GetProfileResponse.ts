@@ -3,6 +3,7 @@ export interface GetProfileResponse {
   alias: string;
   nombre: string;
   apellido: string;
+  email: string;
   celular: string;
   avatarUrl: string;
   rating: string;

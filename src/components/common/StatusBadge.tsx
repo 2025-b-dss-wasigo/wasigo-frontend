@@ -1,11 +1,11 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-type StatusType =
+export type StatusType =
   | 'activa' | 'en_curso' | 'completada' | 'cancelada' | 'cancelado' | 'completado'
   | 'pendiente' | 'aprobada' | 'rechazada'
   | 'abierto' | 'en_revision' | 'resuelto' | 'cerrado'
-  | 'confirmado' | 'no_show' | 'programado' | 'proximo'
+  | 'confirmado' | 'confirmada' | 'finalizada' | 'no_show' | 'programado' | 'proximo'
   | 'activo' | 'baneado' | 'suspendido'
   | 'success' | 'warning' | 'danger' | 'info';
 
@@ -32,6 +32,8 @@ const statusConfig: Record<StatusType, { label: string; className: string }> = {
 
   // Pasajeros
   confirmado: { label: 'Confirmado', className: 'bg-(--success)/10 text-(--success) border-(--success)/20' },
+  confirmada: { label: 'Confirmada', className: 'bg-(--success)/10 text-(--success) border-(--success)/20' },
+  finalizada: { label: 'Finalizada', className: 'bg-(--muted) text-(--muted-foreground) border-(--border)' },
   no_show: { label: 'No Show', className: 'bg-(--destructive)/10 text-(--destructive) border-(--destructive)/20' },
   proximo: { label: 'Próximo', className: 'bg-(--primary)/10 text-(--primary) border-(--primary)/20' },
 

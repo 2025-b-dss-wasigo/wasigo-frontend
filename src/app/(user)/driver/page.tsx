@@ -3,9 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DriverHomeContent } from '@/components/driver/DriverHomeContent';
-import { DriverHomeSkeleton } from '@/components/common/SkeletonLoaders';
-import { obtenerRutasActivas, obtenerEstadisticasConductor } from '@/lib/driverData';
-import type { Ruta } from '@/data/mockData';
+import { obtenerEstadisticasConductor } from '@/lib/driverData';
 import { useAuthStore } from '../../../store/authStore';
 
 interface DriverStats {
@@ -18,22 +16,15 @@ interface DriverStats {
 export default function HomePage() {
   const { isLoading: authLoading } = useAuthStore();
   const router = useRouter();
-  const [rutasActivas, setRutasActivas] = useState<Ruta[]>([]);
   const [stats, setStats] = useState<DriverStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        setIsLoading(true);
-        const conductorId = '2'; // En producción vendría del contexto de auth
-        const [rutas, estadisticas] = await Promise.all([
-          obtenerRutasActivas(conductorId),
-          obtenerEstadisticasConductor(conductorId),
-        ]);
+        const conductorId = '2';
+        const estadisticas = await obtenerEstadisticasConductor(conductorId);
 
-        setRutasActivas(rutas);
         setStats({
           rutasActivas: estadisticas.rutasActivas,
           viajesCompletados: estadisticas.viajesCompletados,
@@ -42,17 +33,11 @@ export default function HomePage() {
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar datos');
-      } finally {
-        setIsLoading(false);
       }
     };
 
     cargarDatos();
   }, []);
-
-  if (authLoading || isLoading) {
-    return <DriverHomeSkeleton />;
-  }
 
   if (error) {
     return (
@@ -66,7 +51,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       {/* Main Content - Integrated with TopBar */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        <DriverHomeContent rutasActivas={rutasActivas} stats={stats!} />
+        <DriverHomeContent stats={stats || {
+          rutasActivas: 0,
+          viajesCompletados: 0,
+          fondosDisponibles: 0,
+          calificacion: 0
+        }} />
       </div>
     </div>
   );

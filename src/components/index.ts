@@ -11,6 +11,7 @@ export { default as RegisterForm } from './auth/RegisterForm';
 export * from './common/BanUserModal';
 export * from './common/ClientOnly';
 export * from './common/CreateUserModal';
+export * from './common/FullScreenLoader';
 export * from './common/LoadingSpinner';
 export * from './common/RatingModal';
 export * from './common/ReportUsersModal';

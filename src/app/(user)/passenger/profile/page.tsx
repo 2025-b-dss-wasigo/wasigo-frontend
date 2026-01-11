@@ -1,8 +1,8 @@
+import { PassengerProfileContent } from '@/components/passenger/PassengerProfileContent';
 
 export default function PassengerProfilePage() {
+
   return (
-    <div>
-      <h1>Hello Page</h1>
-    </div>
+    <PassengerProfileContent />
   );
 }

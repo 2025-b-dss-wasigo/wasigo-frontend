@@ -1,32 +1,24 @@
 import { Suspense } from 'react';
 import { MyRoutesContent } from '@/components/driver/MyRoutesContent';
 import { MyRoutesSkeleton } from '@/components/common/SkeletonLoaders';
-import { ClientOnly } from '@/components/common/ClientOnly';
-import { obtenerRutasActivas, obtenerRutasPausadas } from '@/lib/driverData';
+import { getMyRoutes } from '@/actions';
 
 export const dynamic = 'force-dynamic';
 
 async function MyRoutesData() {
-  const conductorId = '2'; // En producción vendría del contexto de auth
-  const rutasActivas = await obtenerRutasActivas(conductorId);
-  const rutasPausadas = await obtenerRutasPausadas(conductorId);
+  const response = await getMyRoutes();
 
-  const stats = {
-    rutasActivas: rutasActivas.length,
-    viajesCompletados: 48,
-    gananciasMes: 127.50,
-    calificacion: 4.9
-  };
+  if (!response.success || !response.data) {
+    return (
+      <div className="text-center py-12 text-(--muted-foreground)">
+        Error al cargar las rutas. Intenta nuevamente.
+      </div>
+    );
+  }
 
-  return (
-    <ClientOnly fallback={<MyRoutesSkeleton />}>
-      <MyRoutesContent
-        rutasActivas={rutasActivas}
-        rutasPausadas={rutasPausadas}
-        stats={stats}
-      />
-    </ClientOnly>
-  );
+  const routes = response.data.data || [];
+
+  return <MyRoutesContent routes={routes} />;
 }
 
 export default async function MisRutasPage() {

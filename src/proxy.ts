@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 const isProduction = process.env.NODE_ENV === 'production';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const accessToken = request.cookies.get('session-token')?.value;
   const refreshToken = request.cookies.get('refresh-token')?.value;
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { RouteCard } from '@/components/common/RouteCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, MapPin, Clock, Filter, X } from 'lucide-react';
+import { Search, MapPin, Calendar, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Ruta } from '@/data/mockData';
 import PlacesAutocomplete from '@/components/maps/PlacesAutocomplete';
@@ -23,8 +23,14 @@ interface RoutesContentProps {
 
 export function RoutesContent({ rutas }: RoutesContentProps) {
   const [campus, setCampus] = useState<string>('');
-  const [hora, setHora] = useState('');
+  const [fecha, setFecha] = useState('');
   const [destino, setDestino] = useState('');
+
+  // Obtener la fecha mínima (hoy) en formato YYYY-MM-DD
+  const minDate = useMemo(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }, []);
 
   const filteredRutas = rutas.filter(r => {
     if (campus && r.lugarSalida !== campus) return false;
@@ -76,12 +82,13 @@ export function RoutesContent({ rutas }: RoutesContentProps) {
           </div>
 
           <div className="w-full lg:w-48">
-            <Label className="sr-only">Hora</Label>
+            <Label className="sr-only">Fecha</Label>
             <Input
-              type="time"
-              value={hora}
-              onChange={(e) => setHora(e.target.value)}
-              icon={<Clock className="w-5 h-5" />}
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+              min={minDate}
+              icon={<Calendar className="w-5 h-5" />}
               className="h-12"
             />
           </div>
@@ -93,7 +100,7 @@ export function RoutesContent({ rutas }: RoutesContentProps) {
         </div>
 
         {/* Active Filters */}
-        {(campus || destino || hora) && (
+        {(campus || destino || fecha) && (
           <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-(--border)">
             <span className="text-sm text-(--muted-foreground)">Filtros activos:</span>
             {campus && (
@@ -112,16 +119,16 @@ export function RoutesContent({ rutas }: RoutesContentProps) {
                 </button>
               </span>
             )}
-            {hora && (
+            {fecha && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-(--primary)/10 text-(--primary) rounded-full text-sm">
-                {hora}
-                <button onClick={() => setHora('')}>
+                {fecha}
+                <button onClick={() => setFecha('')}>
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             <button
-              onClick={() => { setCampus(''); setDestino(''); setHora(''); }}
+              onClick={() => { setCampus(''); setDestino(''); setFecha(''); }}
               className="text-sm text-(--muted-foreground) hover:text-(--foreground)"
             >
               Limpiar todo

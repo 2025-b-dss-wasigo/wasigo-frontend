@@ -43,32 +43,27 @@ export const setRefreshToken = async (refreshToken: string, expiresIn: number): 
 export const getAccessToken = async (): Promise<string | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get('session-token')?.value || null;
-  console.log('Getting access token:', token ? 'Found' : 'Not found');
   return token;
 }
 
 export const getRefreshToken = async (): Promise<string | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get('refresh-token')?.value || null;
-  console.log('Getting refresh token:', token ? 'Found' : 'Not found');
   return token;
 }
 
 export const deleteAccessToken = async (): Promise<void> => {
   const cookieStore = await cookies();
   cookieStore.delete('session-token');
-  console.log('Access token deleted');
 }
 
 export const deleteRefreshToken = async (): Promise<void> => {
   const cookieStore = await cookies();
   cookieStore.delete('refresh-token');
-  console.log('Refresh token deleted');
 }
 
 export const deleteAllAuthCookies = async (): Promise<void> => {
   const cookieStore = await cookies();
   cookieStore.delete('session-token');
   cookieStore.delete('refresh-token');
-  console.log('All auth cookies deleted');
 }

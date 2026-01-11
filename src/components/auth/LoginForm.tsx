@@ -40,9 +40,12 @@ export default function LoginForm() {
       response.data && router.push(routes[response.data.role])
       return;
     }
-
-    setError(response.message!);
-    let errorMessage = 'Error al registrarse';
+    if (response.statusCode === 429) {
+      setError('Demasiados intentos, inténtalo de nuevo más tarde')
+    } else {
+      setError(response.message!);
+    }
+    let errorMessage = 'Error al iniciar sesión';
     toast.error(errorMessage);
     setLoading(false)
   };

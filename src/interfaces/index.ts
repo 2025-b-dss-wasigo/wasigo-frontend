@@ -1,10 +1,20 @@
+export type { GetDriverRequestsResponse } from './responses/admin/GetDriverRequestsResponse';
+export type { RequestDetailResponse } from './responses/admin/RequestDetailResponse';
+export type { UploadDriverDocumentResponse } from './responses/drivers/UploadDocumentResponse';
+export type { SetPaypalEmailResponse } from './responses/drivers/SetPaypalEmailResponse';
+export type { RequestStatusResponse } from './responses/drivers/RequestStatusResponse';
+export type { RegisterVehicleResponse } from './responses/vehicles/RegisterVehicleResponse';
 export type { GetProfileResponse } from './responses/business/GetProfileResponse';
 export type { RoleResponse } from './responses/auth/RoleResponse.interface';
 export type { RefreshTokenResponse } from './responses/auth/RefreshTokenResponse.interface';
 export type { UserRole } from './UserRole.interface';
 export type { ApiResponse } from './responses/ApiResponse.interface';
 export type { RegisterResponse } from './responses/auth/RegisterResponse.interface';
-
+export type { CreateRouteRequest, GeoPoint, RouteStop, OrigenCampus } from './routes/CreateRouteRequest.interface';
+export type { GetMyRoutesResponse, Route, RouteStop as RouteStopResponse } from './responses/routes/GetMyRoutesResponse.interface';
+export type { BookingsListData, BookingDetailData, Booking, RouteData, DriverData, UserData, ProfileData, Stop } from './responses/bookings/BookingResponse';
+export type { RouteBooking, BookingsRouteData, BookingsRouteResponse, PassengerProfile, PassengerUser } from './bookings-route.interface';
+export type { RouteMapResponse, RouteMapData, RouteStop as RouteMapStop } from './route-map.interface';
 /**
  * Archivo barril para exportar todas las interfaces
  */

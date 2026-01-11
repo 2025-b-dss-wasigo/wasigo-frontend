@@ -33,7 +33,9 @@ export default async function AuthLayout({
   return (
     <LayoutClient initialProfile={{
       ...profileResponse.data,
+      email: profileResponse.data.email,
       role: roleResponse.data.role,
+      verificado: roleResponse.data.role !== 'USER',
     }}>
       {children}
     </LayoutClient>

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Sidebar, TopBar } from '@/components';
-import { SidebarToggle } from '@/components/layout/SidebarToggle';
+import { useSidebarStore } from '@/components/layout/SidebarToggle';
 import { cn } from '@/lib/utils';
 import { useAuthStore, User } from '@/store/authStore';
 
@@ -12,10 +12,9 @@ interface LayoutClientProps {
 }
 
 export function LayoutClient({ children, initialProfile }: LayoutClientProps) {
-
-  const [mobileOpen, setMobileOpen] = useState(false);
   const initialized = useRef(false);
   const setUser = useAuthStore((state) => state.setUser);
+  const { sidebarOpen, setSidebarOpen, mobileSidebarOpen, setMobileSidebarOpen } = useSidebarStore();
 
   useEffect(() => {
     if (!initialized.current) {
@@ -25,24 +24,36 @@ export function LayoutClient({ children, initialProfile }: LayoutClientProps) {
   }, [initialProfile, setUser]);
 
   const handleMobileClose = () => {
-    setMobileOpen(false);
+    setMobileSidebarOpen(false);
+  };
+
+  const handleMenuClick = () => {
+    setMobileSidebarOpen(true);
+  };
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
       <Sidebar
-        isOpen={true}
-        mobileOpen={mobileOpen}
+        isOpen={sidebarOpen}
+        mobileOpen={mobileSidebarOpen}
         onMobileClose={handleMobileClose}
       />
 
       {/* Main Content */}
       <div className={cn(
-        "transition-all duration-300 min-h-screen lg:ml-64"
+        "transition-all duration-300 min-h-screen",
+        sidebarOpen ? "lg:ml-64" : "lg:ml-20"
       )}>
-        <SidebarToggle />
-        <TopBar />
+        <TopBar
+          onMenuClick={handleMenuClick}
+          onToggleSidebar={handleToggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
         <main className="p-4 md:p-6 lg:p-8">
           {children}
         </main>
