@@ -14,11 +14,11 @@ import {
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { EstadisticasAdmin } from '@/lib/adminData';
-import { Solicitud, Transaccion } from '@/data/mockData';
+import { SolicitudConductor, Transaccion } from '@/data/mockData';
 
 interface AdminDashboardContentProps {
   estadisticas: EstadisticasAdmin;
-  solicitudesPendientes: Solicitud[];
+  solicitudesPendientes: SolicitudConductor[];
   transaccionesRecientes: Transaccion[];
 }
 
@@ -124,10 +124,10 @@ export function AdminDashboardContent({
               <div key={tx.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.tipo === 'ingreso' ? 'bg-(--success)/10' :
-                      tx.tipo === 'egreso' ? 'bg-(--destructive)/10' : 'bg-(--warning)/10'
+                    tx.tipo === 'egreso' ? 'bg-(--destructive)/10' : 'bg-(--warning)/10'
                     }`}>
                     <CreditCard className={`w-5 h-5 ${tx.tipo === 'ingreso' ? 'text-(--success)' :
-                        tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
+                      tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
                       }`} />
                   </div>
                   <div>
@@ -136,7 +136,7 @@ export function AdminDashboardContent({
                   </div>
                 </div>
                 <p className={`font-semibold ${tx.tipo === 'ingreso' ? 'text-(--success)' :
-                    tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
+                  tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
                   }`}>
                   {tx.tipo === 'ingreso' ? '+' : ''}${Math.abs(tx.monto).toFixed(2)}
                 </p>

@@ -164,7 +164,7 @@ export function RoutesContent({ rutas }: RoutesContentProps) {
             <p className="text-(--muted-foreground) mb-4">
               Intenta ajustar tus filtros de búsqueda
             </p>
-            <Button variant="outline" onClick={() => { setCampus(''); setDestino(''); setHora(''); }}>
+            <Button variant="outline" onClick={() => { setCampus(''); setDestino(''); setFecha(''); }}>
               Limpiar filtros
             </Button>
           </div>

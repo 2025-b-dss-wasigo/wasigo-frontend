@@ -4,7 +4,7 @@ import { RoutesMapContent } from '@/components/driver/RoutesMapContent';
 export const dynamic = 'force-dynamic';
 
 export default async function RoutesMapPage() {
-  let routes = [];
+  let routes: any[] = [];
 
   try {
     const response = await getMyRoutes();

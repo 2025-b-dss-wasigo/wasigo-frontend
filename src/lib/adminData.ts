@@ -1,4 +1,4 @@
-import { mockUsuarios, mockTransacciones, mockSolicitudes, Usuario, Transaccion, Solicitud } from '@/data/mockData';
+import { mockUsuarios, mockTransacciones, mockSolicitudes, SolicitudConductor, Transaccion } from '@/data/mockData';
 
 // Simular delay de 2 segundos
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,32 +22,31 @@ export async function obtenerEstadisticasAdmin(): Promise<EstadisticasAdmin> {
     totalUsuarios: mockUsuarios.length,
     solicitudesPendientes,
     ingresosDelMes: ingresos,
-    viajesActivos: 12
+    viajesActivos: 3,
   };
 }
 
-export async function obtenerSolicitudesPendientes(): Promise<Solicitud[]> {
-  await delay(2000);
-  return mockSolicitudes.filter(s => s.estado === 'pendiente');
-}
-
-export async function obtenerTransaccionesRecientes(): Promise<Transaccion[]> {
-  await delay(2000);
-  return mockTransacciones.slice(0, 5);
-}
-
-export async function obtenerUsuarios(): Promise<Usuario[]> {
-  await delay(2000);
+export async function obtenerUsuarios() {
+  await delay(1500);
   return mockUsuarios;
 }
 
-export async function obtenerTransacciones(): Promise<Transaccion[]> {
-  await delay(2000);
-  return mockTransacciones;
-}
-
-export async function obtenerSolicitudes(): Promise<Solicitud[]> {
+export async function obtenerSolicitudes() {
+  await delay(1500);
   return mockSolicitudes;
 }
 
-export type { Usuario, Transaccion, Solicitud };
+export async function obtenerTransacciones() {
+  await delay(1500);
+  return mockTransacciones;
+}
+
+export async function rechazarSolicitud(id: string) {
+  await delay(1000);
+  return { success: true, message: `Solicitud ${id} rechazada` };
+}
+
+export async function aprobarSolicitud(id: string) {
+  await delay(1000);
+  return { success: true, message: `Solicitud ${id} aprobada` };
+}

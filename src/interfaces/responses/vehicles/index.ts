@@ -1,1 +1,1 @@
-export { RegisterVehicleResponse, Vehicle } from './RegisterVehicleResponse';
+export type { RegisterVehicleResponse, Vehicle } from './RegisterVehicleResponse';

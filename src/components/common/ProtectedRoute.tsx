@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 
 interface ProtectedRouteProps {
@@ -15,25 +15,19 @@ export function ProtectedRoute({
   requiredRole,
   requiresVerification = false,
 }: ProtectedRouteProps) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
       // Si no está autenticado, redirigir a login
       if (!isAuthenticated) {
-        router.push('/login');
-        return;
-      }
-
-      // Si requiere verificación y no está verificado, redirigir a verificación
-      if (requiresVerification && user?.estadoVerificacion !== 'VERIFICADO') {
-        router.push('/verification');
+        router.push('/auth/login');
         return;
       }
 
       // Si requiere un rol específico y no lo tiene
-      if (requiredRole && user?.role !== requiredRole) {
+      if (requiredRole && user?.role?.toLowerCase() !== requiredRole) {
         router.push('/');
         return;
       }
@@ -57,13 +51,8 @@ export function ProtectedRoute({
     return null;
   }
 
-  // Si se requiere verificación y no está verificado, no renderizar
-  if (requiresVerification && user?.estadoVerificacion !== 'VERIFICADO') {
-    return null;
-  }
-
   // Si requiere rol y no lo tiene, no renderizar
-  if (requiredRole && user?.role !== requiredRole) {
+  if (requiredRole && user?.role?.toLowerCase() !== requiredRole) {
     return null;
   }
 
