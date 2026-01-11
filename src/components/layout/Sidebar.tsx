@@ -1,29 +1,29 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
   Home,
   Search,
   Car,
-  MessageCircle,
   User,
   LogOut,
   PlusCircle,
   Clock,
   Users,
-  AlertTriangle,
-  Settings,
   CreditCard,
   FileText,
   Shield,
   Wallet,
   CheckCircle,
   X,
+  MapPin,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
+import { logout as logoutAction } from '@/actions'
+import { toast } from 'sonner';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -48,80 +48,123 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     items: [
-      { icon: Home, label: 'Inicio', href: '/dashboard', roles: ['pasajero', 'conductor', 'soporte', 'admin'] },
+      { icon: Home, label: 'Inicio', href: '/', roles: ['USER', 'PASAJERO', 'CONDUCTOR', 'ADMIN'] },
     ]
   },
   {
-    title: 'Pasajero',
+    title: 'PASAJERO',
     items: [
-      { icon: Search, label: 'Buscar Rutas', href: '/rutas', roles: ['pasajero', 'conductor'] },
-      { icon: Car, label: 'Mis Viajes', href: '/mis-viajes', roles: ['pasajero', 'conductor'] },
-      { icon: MessageCircle, label: 'Chats', href: '/chats', roles: ['pasajero', 'conductor'], badge: 2 },
+      { icon: Search, label: 'Buscar Rutas', href: '/passenger/routes', roles: ['PASAJERO'] },
+      { icon: Car, label: 'Mis Viajes', href: '/passenger/my-trips', roles: ['PASAJERO'] },
     ]
   },
   {
-    title: 'Conductor',
+    title: 'CONDUCTOR',
     separator: true,
     items: [
-      { icon: PlusCircle, label: 'Crear Ruta', href: '/crear-ruta', roles: ['conductor'] },
-      { icon: Clock, label: 'Mis Rutas', href: '/mis-rutas', roles: ['conductor'] },
-      { icon: CheckCircle, label: 'Validar OTP', href: '/validar-otp', roles: ['conductor'] },
-      { icon: Car, label: 'Historial Viajes', href: '/historial-conductor', roles: ['conductor'] },
-      { icon: Wallet, label: 'Mis Fondos', href: '/fondos', roles: ['conductor'] },
+      { icon: PlusCircle, label: 'Crear Ruta', href: '/driver/create-route', roles: ['CONDUCTOR'] },
+      { icon: Clock, label: 'Mis Rutas', href: '/driver/my-routes', roles: ['CONDUCTOR'] },
+      { icon: MapPin, label: 'Ver en el Mapa', href: '/driver/routes-map', roles: ['CONDUCTOR'] },
+      { icon: CheckCircle, label: 'Validar OTP', href: '/driver/validate-otp', roles: ['CONDUCTOR'] },
+      { icon: Wallet, label: 'Mis Fondos', href: '/driver/earnings', roles: ['CONDUCTOR'] },
     ]
   },
   {
-    title: 'Soporte',
+    title: 'ADMIN',
     items: [
-      { icon: AlertTriangle, label: 'Tickets', href: '/tickets', roles: ['soporte'], badge: 4 },
-    ]
-  },
-  {
-    title: 'Gestión',
-    items: [
-      { icon: Users, label: 'Usuarios', href: '/usuarios', roles: ['soporte', 'admin'] },
-      { icon: FileText, label: 'Solicitudes', href: '/solicitudes', roles: ['admin'], badge: 2 },
-      { icon: CreditCard, label: 'Transacciones', href: '/transacciones', roles: ['admin'] },
-      { icon: Shield, label: 'Auditoría', href: '/auditoria', roles: ['admin'] },
+      { icon: FileText, label: 'Solicitudes', href: '/admin/requests', roles: ['ADMIN'], badge: 2 },
+      { icon: CreditCard, label: 'Transacciones', href: '/admin/transactions', roles: ['ADMIN'] },
     ]
   },
   {
     items: [
-      { icon: User, label: 'Mi Perfil', href: '/perfil', roles: ['pasajero', 'conductor', 'soporte', 'admin'] },
+      { icon: User, label: 'Mi Perfil', href: '/profile', roles: ['USER', 'PASAJERO', 'CONDUCTOR', 'ADMIN'] },
     ]
   },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileClose }) => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
   const location = usePathname();
 
+  if (!user) {
+    return null;
+  }
+
+  const getProfileRoute = () => {
+    const pathSegments = location.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      return `/${pathSegments[0]}/profile`;
+    }
+    return '/profile';
+  };
+
+  const getHomeRoute = () => {
+    const pathSegments = location.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      return `/${pathSegments[0]}`;
+    }
+    return '/';
+  };
+
   const getFilteredGroups = () => {
+    const profileRoute = getProfileRoute();
+    const homeRoute = getHomeRoute();
     return navGroups.map(group => ({
       ...group,
-      items: group.items.filter(item => user && user.role && item.roles.includes(user.role))
+      items: group.items.map(item => {
+        if (item.label === 'Mi Perfil') {
+          return { ...item, href: profileRoute };
+        }
+        if (item.label === 'Inicio') {
+          return { ...item, href: homeRoute };
+        }
+        return item;
+      }).filter(item => user.role && item.roles.includes(user.role))
     })).filter(group => group.items.length > 0);
   };
 
   const filteredGroups = getFilteredGroups();
 
   const getRoleBadge = () => {
-    if (!user || !user.role) return null;
+    if (!user.role) return null;
     const roleColors: Record<string, string> = {
-      pasajero: 'bg-(--info)/20 text-(--info)',
-      conductor: 'bg-(--success)/20 text-(--success)',
-      soporte: 'bg-(--warning)/20 text-(--warning)',
-      admin: 'bg-(--destructive)/20 text-(--destructive)',
+      USER: 'bg-blue-500/20 text-blue-500',
+      PASAJERO: 'bg-blue-500/20 text-blue-500',
+      CONDUCTOR: 'bg-green-500/20 text-green-500',
+      ADMIN: 'bg-red-500/20 text-red-500',
     };
+
+    const roleLabels: Record<string, string> = {
+      USER: 'Usuario No Verificado',
+      PASAJERO: 'Pasajero',
+      CONDUCTOR: 'Conductor',
+      ADMIN: 'Admin',
+    };
+
     return (
       <span className={cn(
-        "px-2 py-0.5 rounded-full text-xs font-medium capitalize",
-        roleColors[user.role] || 'bg-(--muted) text-(--muted-foreground)'
+        "px-2 py-0.5 rounded-full text-xs font-medium",
+        roleColors[user.role] || 'bg-gray-500/20 text-gray-500'
       )}>
-        {user.role}
+        {roleLabels[user.role] || user.role}
       </span>
     );
   };
+
+  const handleLogout = async () => {
+
+    const response = await logoutAction();
+
+    if (response.success) {
+      logout();
+      redirect('/');
+    } else {
+      console.log('Error al cerrar sesión')
+      toast.error(response.message);
+    }
+
+  }
 
   return (
     <aside className={cn(
@@ -148,11 +191,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
       </div>
 
       {/* User Info */}
-      {user && isOpen && (
+      {isOpen && (
         <div className="p-4 border-b border-(--sidebar-border)">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-(--sidebar-accent) flex items-center justify-center text-(--sidebar-accent-foreground) font-semibold">
-              {user.nombre.charAt(0)}{user.apellido.charAt(0)}
+              {user.nombre?.charAt(0) || 'U'}{user.apellido?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{user.nombre} {user.apellido}</p>
@@ -193,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
                             : "hover:bg-(--sidebar-accent) text-(--sidebar-foreground)/80 hover:text-(--sidebar-foreground)"
                         )}
                       >
-                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <item.icon className="w-5 h-5 shrink-0" />
                         {isOpen && (
                           <>
                             <span className="flex-1 text-sm font-medium">{item.label}</span>
@@ -217,7 +260,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
       {/* Logout */}
       <div className="p-3 border-t border-(--sidebar-border)">
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
             "text-(--sidebar-foreground)/70 hover:text-(--sidebar-foreground) hover:bg-(--sidebar-accent)"

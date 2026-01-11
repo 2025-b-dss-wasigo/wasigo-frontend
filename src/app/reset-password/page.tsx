@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button, Input, Label } from '@/components';
 import { Lock, AlertCircle, ArrowRight } from 'lucide-react';
-import { authService } from '@/services';
+import { authResetPassword } from '@/actions';
 import { toast } from 'sonner';
 
 function ResetPasswordContent() {
@@ -51,7 +51,7 @@ function ResetPasswordContent() {
 
     try {
       console.log('[ResetPasswordPage] Reseteando contraseña con token:', token);
-      const response = await authService.resetPassword({
+      const response = await authResetPassword({
         token,
         newPassword,
       });

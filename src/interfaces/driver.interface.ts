@@ -50,11 +50,12 @@ export interface EstadisticasConductor {
 }
 
 export interface FormularioRuta {
-  origen: string;
+  origen: 'CAMPUS_PRINCIPAL' | 'EL_BOSQUE';
   destino: string;
   hora: string;
   diasRecurrentes: string[];
   asientosDisponibles: number;
   precioPorAsiento: number;
   esRecurrente: boolean;
+  nota: string;
 }

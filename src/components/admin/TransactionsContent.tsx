@@ -23,17 +23,17 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
 
   const ingresos = transacciones.filter(t => t.tipo === 'ingreso');
   const egresos = transacciones.filter(t => t.tipo === 'egreso');
-  const reversiones = transacciones.filter(t => t.tipo === 'reversion');
+  const pendientes = transacciones.filter(t => t.tipo === 'pendiente');
 
   const totalIngresos = ingresos.reduce((acc, t) => acc + t.monto, 0);
   const totalEgresos = Math.abs(egresos.reduce((acc, t) => acc + t.monto, 0));
-  const totalReversiones = Math.abs(reversiones.reduce((acc, t) => acc + t.monto, 0));
+  const totalPendientes = Math.abs(pendientes.reduce((acc, t) => acc + t.monto, 0));
 
   const getTypeIcon = (tipo: string) => {
     switch (tipo) {
       case 'ingreso': return <ArrowUpRight className="w-4 h-4 text-(--success)" />;
       case 'egreso': return <ArrowDownRight className="w-4 h-4 text-(--info)" />;
-      case 'reversion': return <RotateCcw className="w-4 h-4 text-(--warning)" />;
+      case 'pendiente': return <RotateCcw className="w-4 h-4 text-(--warning)" />;
       default: return null;
     }
   };
@@ -110,8 +110,8 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
                 <RotateCcw className="w-5 h-5 text-(--warning)" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-(--foreground)">${totalReversiones.toFixed(2)}</p>
-                <p className="text-xs text-(--muted-foreground)">Reversiones</p>
+                <p className="text-2xl font-bold text-(--foreground)">${totalPendientes.toFixed(2)}</p>
+                <p className="text-xs text-(--muted-foreground)">Pendientes</p>
               </div>
             </div>
           </CardContent>
@@ -171,7 +171,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.tipo === 'ingreso' ? 'bg-(--success)/10' :
-                          tx.tipo === 'egreso' ? 'bg-(--info)/10' : 'bg-(--warning)/10'
+                        tx.tipo === 'egreso' ? 'bg-(--info)/10' : 'bg-(--warning)/10'
                         }`}>
                         {getTypeIcon(tx.tipo)}
                       </div>
@@ -195,7 +195,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
                         {getStatusBadge(tx.estado)}
                       </div>
                       <p className={`font-bold text-lg ${tx.tipo === 'ingreso' ? 'text-(--success)' :
-                          tx.tipo === 'egreso' ? 'text-(--info)' : 'text-(--warning)'
+                        tx.tipo === 'egreso' ? 'text-(--info)' : 'text-(--warning)'
                         }`}>
                         {tx.monto >= 0 ? '+' : ''}${Math.abs(tx.monto).toFixed(2)}
                       </p>

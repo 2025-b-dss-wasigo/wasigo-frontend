@@ -11,6 +11,7 @@ export { default as RegisterForm } from './auth/RegisterForm';
 export * from './common/BanUserModal';
 export * from './common/ClientOnly';
 export * from './common/CreateUserModal';
+export * from './common/FullScreenLoader';
 export * from './common/LoadingSpinner';
 export * from './common/RatingModal';
 export * from './common/ReportUsersModal';
@@ -22,6 +23,7 @@ export * from './common/WithdrawModal';
 // ========== COMPONENTES DE LAYOUT ==========
 export * from './layout/Sidebar';
 export * from './layout/TopBar';
+export { LayoutClient } from './layout/LayoutClient';
 
 // ========== COMPONENTES UI (Radix/Shadcn) ==========
 export { Badge, badgeVariants } from './ui/badge';

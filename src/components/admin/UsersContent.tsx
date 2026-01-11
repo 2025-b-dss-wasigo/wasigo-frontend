@@ -23,19 +23,29 @@ import {
 } from '@/components/ui/select';
 import { BanUserModal } from '@/components/common/BanUserModal';
 import { CreateUserModal } from '@/components/common/CreateUserModal';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import {
   Search, User, Star, Ban, CheckCircle2, Car, Users, Filter, UserPlus
 } from 'lucide-react';
-import { Usuario } from '@/data/mockData';
 import { toast } from 'sonner';
+
+interface Usuario {
+  id: string;
+  nombre: string;
+  alias: string;
+  email: string;
+  rol: 'pasajero' | 'conductor' | 'soporte' | 'admin';
+  calificacion: number;
+  fechaRegistro: string;
+  estado: 'activo' | 'baneado';
+}
 
 interface UsersContentProps {
   usuarios: Usuario[];
 }
 
 export function UsersContent({ usuarios }: UsersContentProps) {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('todos');
   const [banModal, setBanModal] = useState<{
@@ -45,7 +55,7 @@ export function UsersContent({ usuarios }: UsersContentProps) {
   }>({ open: false, userName: '', userAlias: '' });
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
 
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'ADMIN';
 
   const filteredUsers = usuarios.filter(u =>
     u.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||

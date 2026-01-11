@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { authService } from '@/services';
+import { authForgotPassword, authResetPassword } from '@/actions';
 import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components';
 import { Mail, Lock, AlertCircle, ArrowRight, Loader } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,7 +25,7 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
 
   const handleOpenChange = (newOpen: boolean) => {
     onOpenChange(newOpen);
-    
+
     // Limpiar estado cuando se cierra el modal
     if (!newOpen) {
       setTimeout(() => {
@@ -55,14 +55,14 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
 
     try {
       console.log('[ForgotPasswordModal] Enviando solicitud de recuperación para:', email);
-      const response = await authService.forgotPassword({ email });
+      const response = await authForgotPassword({ email });
 
       if (response.data) {
         const successMsg = 'Se envió un enlace de recuperación a tu correo.';
         setSuccess(successMsg);
         toast.success(successMsg);
         console.log('[ForgotPasswordModal] Código enviado exitosamente');
-        
+
         // Avanzar al siguiente paso después de 1 segundo
         setTimeout(() => {
           setStep('reset');
@@ -70,7 +70,7 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
       }
     } catch (err: any) {
       let errorMessage = 'Error al enviar el correo. Intenta nuevamente.';
-      
+
       if (err?.message) {
         errorMessage = err.message;
       } else if (err instanceof Error) {
@@ -110,7 +110,7 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
 
     try {
       console.log('[ForgotPasswordModal] Reseteando contraseña...');
-      const response = await authService.resetPassword({
+      const response = await authResetPassword({
         token: token.trim(),
         newPassword,
       });
@@ -120,7 +120,7 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
         setSuccess(successMsg);
         toast.success('Contraseña actualizada exitosamente');
         console.log('[ForgotPasswordModal] Contraseña reseteada exitosamente');
-        
+
         // Cerrar modal después de 2 segundos
         setTimeout(() => {
           handleOpenChange(false);
@@ -128,7 +128,7 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
       }
     } catch (err: any) {
       let errorMessage = 'Error al restablecer. Verifica el código e intenta nuevamente.';
-      
+
       if (err?.message) {
         errorMessage = err.message;
       } else if (err instanceof Error) {

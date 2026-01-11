@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@/components';
 import { Mail, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { toast } from 'sonner';
-import { verificationService } from '@/services';
+import { ConfirmVerificationCode, sendVerificationCode } from '@/actions';
+import { useAuthStore } from '@/store/authStore';
 
 export default function VerificationPage() {
   const router = useRouter();
-  const { user, isLoading, requiresVerification, confirmVerification } = useAuth();
-  
+  const { user, isLoading } = useAuthStore();
+
   const [step, setStep] = useState<'send' | 'confirm'>('send');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,26 +19,15 @@ export default function VerificationPage() {
   const [error, setError] = useState('');
   const [isChecking, setIsChecking] = useState(true);
 
-  // Verificar si el usuario está autenticado y requiere verificación
+  // Verificar si el usuario está autenticado
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
         // No está autenticado
-        router.push('/login');
+        router.push('/auth/login');
         return;
       }
-      
-      if (user.estadoVerificacion === 'VERIFICADO') {
-        // Ya está verificado, redirigir al dashboard
-        const rol = user.rol?.toLowerCase();
-        if (rol === 'conductor') {
-          router.push('/driver/dashboard');
-        } else {
-          router.push('/passenger/dashboard');
-        }
-        return;
-      }
-      
+
       setIsChecking(false);
     }
   }, [user, isLoading, router]);
@@ -51,16 +40,16 @@ export default function VerificationPage() {
     setLoading(true);
 
     try {
-      console.log('[VerificationPage] Enviando código de verificación para:', user.id);
-      const response = await verificationService.sendVerification(user.id);
-      
-      if (!response.error) {
+      console.log('[VerificationPage] Enviando código de verificación para:', user.email);
+      const response = await sendVerificationCode();
+
+      if (response.success) {
         setCodeSent(true);
         setStep('confirm');
         toast.success('Código enviado a tu correo');
         console.log('[VerificationPage] Código enviado exitosamente');
       } else {
-        setError(response.error || 'Error al enviar el código');
+        setError(response.message || 'Error al enviar el código');
         toast.error('Error al enviar el código');
       }
     } catch (err: any) {
@@ -89,24 +78,19 @@ export default function VerificationPage() {
     setLoading(true);
 
     try {
-      console.log('[VerificationPage] Confirmando código para:', user.id);
-      const response = await verificationService.confirmVerification(user.id, { code });
-      
-      if (!response.error) {
+      console.log('[VerificationPage] Confirmando código para:', user.email);
+      const response = await ConfirmVerificationCode(code);
+
+      if (response.success) {
         toast.success('¡Correo verificado exitosamente!');
         console.log('[VerificationPage] Verificación exitosa');
-        
-        // Actualizar estado en AuthContext
-        const success = await confirmVerification(code);
-        
-        if (success) {
-          // Redirigir al dashboard del pasajero (rol por defecto después de verificar)
-          setTimeout(() => {
-            router.push('/passenger/dashboard');
-          }, 1500);
-        }
+
+        // Redirigir al dashboard del pasajero
+        setTimeout(() => {
+          router.push('/passenger');
+        }, 1500);
       } else {
-        const errorMsg = response.error || 'Código inválido o expirado';
+        const errorMsg = response.message || 'Código inválido o expirado';
         setError(errorMsg);
         toast.error(errorMsg);
       }
@@ -144,7 +128,7 @@ export default function VerificationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-background rounded-lg shadow-lg p-8 space-y-6">
           {/* Header */}
@@ -171,8 +155,8 @@ export default function VerificationPage() {
           {step === 'send' && (
             <form onSubmit={handleSendCode} className="space-y-4">
               <p className="text-sm text-muted-foreground text-center">
-                {codeSent 
-                  ? 'Revisa tu bandeja de entrada o carpeta de spam' 
+                {codeSent
+                  ? 'Revisa tu bandeja de entrada o carpeta de spam'
                   : 'Haz clic en el botón para recibir un código de verificación'}
               </p>
 
@@ -218,7 +202,7 @@ export default function VerificationPage() {
                   type="text"
                   placeholder="000000"
                   value={code}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCode(e.target.value.replace(/\D/g, '').slice(0, 6))
                   }
                   maxLength={6}

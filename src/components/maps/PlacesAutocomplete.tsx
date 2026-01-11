@@ -1,18 +1,14 @@
-// DESHABILITADO TEMPORALMENTE - Falta dependencia @react-google-maps/api
-// TODO: Instalar: npm install @react-google-maps/api
-
-/*
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 interface PlacesAutocompleteProps {
   onPlaceSelect: (place: { address: string; lat: number; lng: number }) => void;
-
   placeholder?: string;
   defaultValue?: string;
 }
@@ -37,13 +33,26 @@ export default function PlacesAutocomplete({
   const [inputValue, setInputValue] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSelectingRef = useRef(false);
+
+  // Prevenir hydration mismatch
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
-    if (!inputValue || inputValue.length < 3 || !isLoaded) {
+    if (isSelectingRef.current || !inputValue || inputValue.length < 1 || !isLoaded) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
+
+    // Mostrar loader inmediatamente cuando hay texto
+    setIsLoading(true);
+    setShowSuggestions(true);
 
     const timer = setTimeout(async () => {
       try {
@@ -69,10 +78,11 @@ export default function PlacesAutocomplete({
         }));
 
         setSuggestions(formattedSuggestions);
-        setShowSuggestions(true);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error al obtener sugerencias:", error);
         setSuggestions([]);
+        setIsLoading(false);
       }
     }, 300); // Debounce de 300ms
 
@@ -81,6 +91,13 @@ export default function PlacesAutocomplete({
 
   const handleSuggestionClick = async (placeId: string, description: string) => {
     try {
+      // Marcar que estamos seleccionando para evitar que se regeneren las sugerencias
+      isSelectingRef.current = true;
+
+      // Limpiar sugerencias inmediatamente
+      setSuggestions([]);
+      setShowSuggestions(false);
+
       // Usar la nueva API de Place
       const place = new google.maps.places.Place({
         id: placeId,
@@ -101,20 +118,25 @@ export default function PlacesAutocomplete({
         });
 
         setInputValue(description);
-        setShowSuggestions(false);
         onPlaceSelect({
           address: description,
           lat,
           lng,
         });
       }
+
+      // Reset el flag después de actualizar el estado
+      setTimeout(() => {
+        isSelectingRef.current = false;
+      }, 0);
     } catch (error) {
       console.error("Error al obtener detalles del lugar:", error);
+      isSelectingRef.current = false;
     }
   };
 
-  if (!isLoaded) {
-    return <Input placeholder="Cargando..." disabled />;
+  if (!isHydrated || !isLoaded) {
+    return <Input placeholder={placeholder} disabled />;
   }
 
   return (
@@ -124,39 +146,35 @@ export default function PlacesAutocomplete({
         type="text"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+        onFocus={() => inputValue.length > 0 && setShowSuggestions(true)}
         placeholder={placeholder}
         autoComplete="off"
       />
 
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && inputValue.length > 0 && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-          {suggestions.map((suggestion) => (
-            <div
-              key={suggestion.placeId}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
-              onClick={() => handleSuggestionClick(suggestion.placeId, suggestion.text)}
-            >
-              <div className="font-medium text-sm">{suggestion.mainText}</div>
-              <div className="text-xs text-gray-600">{suggestion.secondaryText}</div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
             </div>
-          ))}
+          ) : suggestions.length > 0 ? (
+            suggestions.map((suggestion) => (
+              <div
+                key={suggestion.placeId}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                onClick={() => handleSuggestionClick(suggestion.placeId, suggestion.text)}
+              >
+                <div className="font-medium text-sm">{suggestion.mainText}</div>
+                <div className="text-xs text-gray-600">{suggestion.secondaryText}</div>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+              No se encontraron resultados
+            </div>
+          )}
         </div>
       )}
     </div>
   );
-}
-*/
-
-// Exportar componente dummy mientras se instala la dependencia
-export default function PlacesAutocomplete({ 
-  onPlaceSelect, 
-  placeholder = "Buscar dirección...", 
-  defaultValue = "" 
-}: { 
-  onPlaceSelect?: (place: { address: string; lat: number; lng: number }) => void; 
-  placeholder?: string; 
-  defaultValue?: string; 
-}) {
-  return <input type="text" placeholder={placeholder} defaultValue={defaultValue} className="w-full px-3 py-2 border rounded-md" disabled />;
 }
