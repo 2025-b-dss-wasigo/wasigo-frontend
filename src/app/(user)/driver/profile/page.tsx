@@ -6,6 +6,11 @@ import {
   ProfileTabsSkeleton,
 } from '@/components/driver/DriverProfileSkeleton';
 
+export const metadata = {
+  title: 'Mi Perfil',
+  description: 'Visualiza tu información personal.',
+};
+
 export default function DriverProfilePage() {
   return (
     <Suspense

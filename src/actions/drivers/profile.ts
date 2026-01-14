@@ -57,7 +57,7 @@ export async function getDriverProfile(): Promise<DriverMeResponse> {
     const response = await fetchWithToken<DriverMeData>('/drivers/me');
     return response;
   } catch (error) {
-    console.error('Error fetching driver profile:', error);
+    console.error('Error fetching driver profile:');
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch driver profile',

@@ -19,7 +19,7 @@ export async function createPayment(
 
     return result;
   } catch (error) {
-    console.error('Error creating payment:', error);
+    console.error('Error creating payment:');
     return {
       success: false,
       error: null,

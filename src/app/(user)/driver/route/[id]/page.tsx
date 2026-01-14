@@ -10,6 +10,11 @@ interface RouteMapPageProps {
   }>;
 }
 
+export const metadata = {
+  title: 'Ruta',
+  description: 'Visualiza la ruta en vivo.',
+};
+
 export default async function RouteMapPage({ params }: RouteMapPageProps) {
   const { id } = await params;
 
@@ -57,7 +62,7 @@ export default async function RouteMapPage({ params }: RouteMapPageProps) {
         </div>
 
         <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-          <div className="inline-block w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+          <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             📍
           </div>
           <h3 className="text-lg font-semibold text-yellow-900 mb-2">Ruta Finalizada</h3>

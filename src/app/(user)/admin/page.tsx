@@ -7,6 +7,11 @@ import { AdminDashboardContent } from '@/components/admin';
 import { DriverRequestsListSkeleton, PayoutsListSkeleton } from '@/components/common/SkeletonLoaders';
 import { Driver } from '../../../interfaces/responses/admin/GetDriverRequestsResponse';
 
+export const metadata = {
+  title: 'Admin Inicio',
+  description: 'Visualiza los últimos movimientos.',
+};
+
 async function AdminData() {
   const [requestsResponse, payoutsResponse] = await Promise.all([
     getDriverRequests(),

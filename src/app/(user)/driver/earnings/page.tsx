@@ -8,6 +8,11 @@ import { EarningsSkeleton } from '@/components/common/SkeletonLoaders';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Mis Ganancias',
+  description: 'Visualiza tus ganancias.',
+};
+
 async function EarningsData() {
 
   const [balanceResponse, paymentsResponse, payoutsResponse, driverResponse] = await Promise.all([

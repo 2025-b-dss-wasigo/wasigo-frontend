@@ -95,7 +95,7 @@ export async function getDriverPayments(): Promise<DriverPaymentsResponse> {
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Error fetching driver payments:', error);
+    console.error('Error fetching driver payments:');
     throw new Error('Failed to fetch driver payments');
   }
 }

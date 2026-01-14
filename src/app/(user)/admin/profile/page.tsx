@@ -6,6 +6,11 @@ import {
   ProfileTabsSkeleton,
 } from '@/components/admin/AdminProfileSkeleton';
 
+export const metadata = {
+  title: 'Mi Perfil',
+  description: 'Visualiza y actualiza tus datos.',
+};
+
 export default function AdminProfilePage() {
   return (
     <Suspense

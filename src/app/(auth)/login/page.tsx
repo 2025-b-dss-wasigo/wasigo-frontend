@@ -2,6 +2,11 @@ import Link from "next/link";
 import { Car } from 'lucide-react';
 import { LoginForm } from '@/components';
 
+export const metadata = {
+  title: 'Ingreso',
+  description: 'Ingresa tus credenciales.',
+};
+
 export default function LoginPage() {
 
   return (

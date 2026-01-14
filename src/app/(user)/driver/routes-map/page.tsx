@@ -3,6 +3,11 @@ import { RoutesMapContent } from '@/components/driver/RoutesMapContent';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Mapas',
+  description: 'Visualiza las rutas disponibles para visualizar en el mapa.',
+};
+
 export default async function RoutesMapPage() {
   let routes: any[] = [];
 

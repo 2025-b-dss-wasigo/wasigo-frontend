@@ -79,13 +79,11 @@ export function PassengerRouteMapVisualizer({
             },
             suppressMarkers: true,
             suppressPolylines: false,
-            preserveViewport: true, // ✅ CLAVE: No ajustar viewport automáticamente
+            preserveViewport: true,
           });
 
           directionsRenderer.setMap(mapInstance);
           directionsRendererRef.current = directionsRenderer;
-
-          console.log('✅ DirectionsRenderer creado con preserveViewport: true');
 
           // Crear marcadores de paradas
           const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
@@ -139,29 +137,24 @@ export function PassengerRouteMapVisualizer({
       return;
     }
 
-    console.log('🔄 Iniciando intervalo de recálculo cada 3 segundos');
-
     const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
 
     recalculateIntervalRef.current = setInterval(() => {
       const currentLocation = userLocationRef.current;
 
       if (currentLocation && directionsRendererRef.current) {
-        console.log('🗺️ Recalculando ruta desde ubicación actual:', currentLocation);
-
         // ✅ Centrar mapa en ubicación actual antes de dibujar
         map.setCenter(currentLocation);
 
         drawRoute(currentLocation, sortedStops, directionsRendererRef.current);
       } else {
-        console.log('⚠️ No hay ubicación actual disponible para recalcular');
+        console.error('No hay ubicación actual disponible para recalcular');
       }
     }, 3000);
 
     // Limpiar intervalo
     return () => {
       if (recalculateIntervalRef.current) {
-        console.log('🛑 Limpiando intervalo de recálculo');
         clearInterval(recalculateIntervalRef.current);
       }
     };
@@ -197,25 +190,18 @@ export function PassengerRouteMapVisualizer({
           lng: position.coords.longitude,
         };
 
-        console.log('📍 Ubicación actualizada:', userPos);
-
         setUserLocation(userPos);
         userLocationRef.current = userPos;
 
-        // ✅ Siempre centrar en la nueva ubicación
         mapInstance.setCenter(userPos);
 
-        // Si es la primera ubicación, hacer zoom
         if (isFirstLocationRef.current) {
-          console.log('🎯 Primera ubicación detectada, aplicando zoom 18');
           mapInstance.setZoom(18);
           isFirstLocationRef.current = false;
         }
 
-        // Actualizar marcador de usuario
         updateUserMarker(mapInstance, userPos, advancedMarkerElementRef.current);
 
-        // Dibujar ruta inmediatamente cuando se obtiene ubicación
         if (directionsRendererRef.current && stops.length > 0) {
           const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
           drawRoute(userPos, sortedStops, directionsRendererRef.current);
@@ -239,7 +225,6 @@ export function PassengerRouteMapVisualizer({
     );
   };
 
-  // Dibujar ruta SIEMPRE desde ubicación actual
   const drawRoute = async (
     origin: { lat: number; lng: number },
     routeStops: RouteStop[],
@@ -249,13 +234,12 @@ export function PassengerRouteMapVisualizer({
     const sortedStops = [...routeStops].sort((a, b) => a.orden - b.orden);
 
     if (sortedStops.length === 0) {
-      console.error('❌ No hay paradas para dibujar');
+      console.error('No hay paradas para dibujar');
       return;
     }
 
     const destination = sortedStops[sortedStops.length - 1];
 
-    // Todas las paradas (excepto la última) son waypoints
     const waypoints = sortedStops.slice(0, -1).map(stop => ({
       location: {
         lat: parseFloat(stop.lat),
@@ -276,10 +260,9 @@ export function PassengerRouteMapVisualizer({
         optimizeWaypoints: false,
       });
 
-      // ✅ Si llega aquí, el status ya es OK
       directionsRenderer.setDirections(result);
     } catch (error) {
-      console.error('❌ Error al calcular ruta:', error);
+      console.error('Error al calcular ruta:', error);
     }
 
   };

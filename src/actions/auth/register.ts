@@ -12,6 +12,8 @@ export interface RegisterData {
   confirmPassword: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
 export async function authRegister(data: RegisterData): Promise<ApiResponse<RegisterResponse>> {
 
   try {
@@ -28,7 +30,7 @@ export async function authRegister(data: RegisterData): Promise<ApiResponse<Regi
       redirect: "follow"
     };
 
-    const response = await fetch("http://localhost:3000/api/auth/register", requestOptions)
+    const response = await fetch(`${API_BASE_URL}/auth/register`, requestOptions)
     const result = await response.json();
     return result;
 

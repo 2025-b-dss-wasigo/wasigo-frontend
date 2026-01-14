@@ -16,10 +16,6 @@ export type { BookingsListData, BookingDetailData, Booking, RouteData, DriverDat
 export type { RouteBooking, BookingsRouteData, BookingsRouteResponse, PassengerProfile, PassengerUser } from './bookings-route.interface';
 export type { RouteMapResponse, RouteMapData, RouteStop as RouteMapStop } from './route-map.interface';
 export type { Route } from './routes/AvailableRoute.interface';
-/**
- * Archivo barril para exportar todas las interfaces
- */
-
 export * from './auth.interface';
 export * from './driver.interface';
 

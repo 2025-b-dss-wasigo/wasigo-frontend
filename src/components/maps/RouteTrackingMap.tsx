@@ -287,7 +287,7 @@ export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMap
   if (routeData?.estado?.toUpperCase() === 'FINALIZADA') {
     return (
       <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-        <div className="inline-block w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+        <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
           <MapPin className="w-6 h-6 text-yellow-600" />
         </div>
         <h3 className="text-lg font-semibold text-yellow-900 mb-2">Ruta Finalizada</h3>

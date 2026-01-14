@@ -5,7 +5,9 @@ import {
   ChevronRight, CreditCard, MessageCircle,
   CheckCircle, ArrowRight
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
+
 
 export default function Home() {
 
@@ -51,10 +53,14 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-(--background)/80 backdrop-blur-lg border-b border-(--border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-(--primary) flex items-center justify-center">
-                <Car className="w-6 h-6 text-(--primary-foreground)" />
-              </div>
+            <div className="flex items-center">
+              <Image
+                src="/logo.webp"
+                alt="WasiGo"
+                width={40}
+                height={40}
+                className="w-20 h-15"
+              />
               <span className="text-xl font-bold text-(--foreground)">WasiGo</span>
             </div>
             <div className="flex items-center gap-3">
@@ -71,7 +77,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-(--primary)/5 via-transparent to-(--primary)/10" />
+        <div className="absolute inset-0 bg-linear-to-br from-(--primary)/5 via-transparent to-(--primary)/10" />
         <div className="absolute top-20 right-0 w-96 h-96 bg-(--primary)/20 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-(--primary)/10 rounded-full blur-3xl" />
 
@@ -112,7 +118,7 @@ export default function Home() {
                   {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-(--primary) to-(--primary)/60 border-2 border-(--background) flex items-center justify-center text-(--primary-foreground) text-xs font-bold"
+                      className="w-10 h-10 rounded-full bg-linear-to-br from-(--primary) to-(--primary)/60 border-2 border-(--background) flex items-center justify-center text-(--primary-foreground) text-xs font-bold"
                     >
                       {String.fromCharCode(64 + i)}
                     </div>
@@ -126,7 +132,7 @@ export default function Home() {
             </div>
 
             <div className="relative hidden lg:block">
-              <div className="relative bg-gradient-to-br from-(--card) to-(--muted) rounded-3xl p-8 shadow-custom-xl">
+              <div className="relative bg-linear-to-br from-(--card) to-(--muted) rounded-3xl p-8 shadow-custom-xl">
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-(--primary)/20 rounded-full blur-2xl" />
 
                 {/* Mock App Screen */}
@@ -248,7 +254,7 @@ export default function Home() {
             {/* Passenger */}
             <Card className="overflow-hidden border-(--border)/50">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-(--info)/10 to-(--info)/5 p-8">
+                <div className="bg-linear-to-br from-(--info)/10 to-(--info)/5 p-8">
                   <div className="w-16 h-16 bg-(--info)/20 rounded-2xl flex items-center justify-center mb-6">
                     <Users className="w-8 h-8 text-(--info)" />
                   </div>
@@ -273,7 +279,7 @@ export default function Home() {
             {/* Driver */}
             <Card className="overflow-hidden border-(--border)/50">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-(--success)/10 to-(--success)/5 p-8">
+                <div className="bg-linear-to-br from-(--success)/10 to-(--success)/5 p-8">
                   <div className="w-16 h-16 bg-(--success)/20 rounded-2xl flex items-center justify-center mb-6">
                     <Car className="w-8 h-8 text-(--success)" />
                   </div>
@@ -301,7 +307,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <Card className="bg-gradient-to-r from-(--primary) to-(--primary)/80 border-0 overflow-hidden relative">
+          <Card className="bg-linear-to-r from-(--primary) to-(--primary)/80 border-0 overflow-hidden relative">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ij48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI0Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
             <CardContent className="p-8 sm:p-12 text-center relative">
               <h2 className="text-3xl sm:text-4xl font-bold text-(--primary-foreground) mb-4">
@@ -323,13 +329,17 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 px-4 sm:px-6 lg:px-8 border-t border-(--border)">
+      <footer className="py-1 px-4 sm:px-6 lg:px-8 border-t border-(--border)">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-(--primary) flex items-center justify-center">
-                <Car className="w-5 h-5 text-(--primary-foreground)" />
-              </div>
+            <div className="flex items-center">
+              <Image
+                src="/logo.webp"
+                alt="WasiGo"
+                width={40}
+                height={40}
+                className="w-20 h-15"
+              />
               <span className="font-bold text-(--foreground)">WasiGo</span>
             </div>
             <p className="text-sm text-(--muted-foreground)">

@@ -5,6 +5,11 @@ import { getAllPayouts } from '@/actions/payouts/all';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Transacciones',
+  description: 'Revisa las transacciones a cuentas de conductores.',
+};
+
 async function TransactionsData() {
   const payoutsResponse = await getAllPayouts();
   const payouts = payoutsResponse.data?.data || [];

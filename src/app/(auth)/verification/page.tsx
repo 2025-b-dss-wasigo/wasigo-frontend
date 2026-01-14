@@ -10,7 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function VerificationPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading, verifyUser } = useAuthStore();
 
   const [step, setStep] = useState<'send' | 'confirm'>('send');
   const [code, setCode] = useState('');
@@ -80,6 +80,9 @@ export default function VerificationPage() {
 
       if (response.success) {
         toast.success('¡Correo verificado exitosamente!');
+
+        // Actualizar el estado de Zustand
+        verifyUser();
 
         // Redirigir al dashboard del pasajero
         setTimeout(() => {
