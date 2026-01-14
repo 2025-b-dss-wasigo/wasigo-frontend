@@ -10,7 +10,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { sendVerificationCode } from '@/actions';
 import { logout as logoutAction } from '@/actions';
 import { useAuthStore } from '@/store/authStore';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface ProfileAlertCardProps {
@@ -18,6 +18,7 @@ interface ProfileAlertCardProps {
   onDriverApplicationClick?: () => void;
   verificado: boolean;
   hasDriverApplication?: boolean;
+  redirectOnVerification?: boolean;
 }
 
 export const ProfileAlertCard: React.FC<ProfileAlertCardProps> = ({
@@ -25,12 +26,14 @@ export const ProfileAlertCard: React.FC<ProfileAlertCardProps> = ({
   onDriverApplicationClick,
   verificado,
   hasDriverApplication = true,
+  redirectOnVerification = false,
 }) => {
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCompleted, setVerificationCompleted] = useState(false);
   const { logout } = useAuthStore();
+  const router = useRouter();
   const isPassenger = role === 'PASAJERO';
   const isUserRole = role === 'USER';
   const isDriver = role === 'CONDUCTOR';
@@ -74,6 +77,10 @@ export const ProfileAlertCard: React.FC<ProfileAlertCardProps> = ({
 
       if (response.success) {
         setIsLoading(false);
+        if (redirectOnVerification) {
+          router.push('/passenger/profile');
+          return;
+        }
         setVerificationModalOpen(true);
         return;
       }

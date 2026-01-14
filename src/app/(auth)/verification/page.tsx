@@ -24,7 +24,7 @@ export default function VerificationPage() {
     if (!isLoading) {
       if (!user) {
         // No está autenticado
-        router.push('/auth/login');
+        router.push('/login');
         return;
       }
 
@@ -40,14 +40,12 @@ export default function VerificationPage() {
     setLoading(true);
 
     try {
-      console.log('[VerificationPage] Enviando código de verificación para:', user.email);
       const response = await sendVerificationCode();
 
       if (response.success) {
         setCodeSent(true);
         setStep('confirm');
         toast.success('Código enviado a tu correo');
-        console.log('[VerificationPage] Código enviado exitosamente');
       } else {
         setError(response.message || 'Error al enviar el código');
         toast.error('Error al enviar el código');
@@ -78,12 +76,10 @@ export default function VerificationPage() {
     setLoading(true);
 
     try {
-      console.log('[VerificationPage] Confirmando código para:', user.email);
       const response = await ConfirmVerificationCode(code);
 
       if (response.success) {
         toast.success('¡Correo verificado exitosamente!');
-        console.log('[VerificationPage] Verificación exitosa');
 
         // Redirigir al dashboard del pasajero
         setTimeout(() => {

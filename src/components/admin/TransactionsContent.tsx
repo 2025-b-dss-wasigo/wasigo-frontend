@@ -11,23 +11,12 @@ import {
   ArrowUpRight, ArrowDownRight, RotateCcw,
   TrendingUp, CheckCircle2, Calendar
 } from 'lucide-react';
-import { Transaccion } from '@/data/mockData';
 
-interface TransactionsContentProps {
-  transacciones: Transaccion[];
-}
 
-export function TransactionsContent({ transacciones }: TransactionsContentProps) {
+export function TransactionsContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [period, setPeriod] = useState('todo');
 
-  const ingresos = transacciones.filter(t => t.tipo === 'ingreso');
-  const egresos = transacciones.filter(t => t.tipo === 'egreso');
-  const pendientes = transacciones.filter(t => t.tipo === 'pendiente');
-
-  const totalIngresos = ingresos.reduce((acc, t) => acc + t.monto, 0);
-  const totalEgresos = Math.abs(egresos.reduce((acc, t) => acc + t.monto, 0));
-  const totalPendientes = Math.abs(pendientes.reduce((acc, t) => acc + t.monto, 0));
 
   const getTypeIcon = (tipo: string) => {
     switch (tipo) {
@@ -56,10 +45,6 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
     }
   };
 
-  const filteredTransactions = transacciones.filter(t =>
-    t.concepto.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.usuario.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="space-y-6">
@@ -76,7 +61,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-(--success)/10 to-(--success)/5">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -129,7 +114,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -163,7 +148,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
             </TabsList>
 
             <TabsContent value={period} className="mt-4">
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 {filteredTransactions.map((tx) => (
                   <div
                     key={tx.id}
@@ -202,7 +187,7 @@ export function TransactionsContent({ transacciones }: TransactionsContentProps)
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </TabsContent>
           </Tabs>
         </CardContent>

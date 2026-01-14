@@ -22,7 +22,7 @@ export function ProtectedRoute({
     if (!isLoading) {
       // Si no está autenticado, redirigir a login
       if (!isAuthenticated) {
-        router.push('/auth/login');
+        router.push('/login');
         return;
       }
 

@@ -5,7 +5,7 @@ import { useJsApiLoader } from "@react-google-maps/api";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
-const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
+const libraries: ("places" | "drawing" | "geometry" | "visualization" | "marker")[] = ["places", "geometry", "marker"];
 
 interface PlacesAutocompleteProps {
   onPlaceSelect: (place: { address: string; lat: number; lng: number }) => void;
@@ -56,6 +56,14 @@ export default function PlacesAutocomplete({
 
     const timer = setTimeout(async () => {
       try {
+        // Verificar que AutocompleteSuggestion esté disponible
+        if (!google?.maps?.places?.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+          console.error("AutocompleteSuggestion API no está disponible");
+          setSuggestions([]);
+          setIsLoading(false);
+          return;
+        }
+
         // Usar la nueva API de AutocompleteSuggestion
         const request = {
           input: inputValue,
@@ -111,11 +119,6 @@ export default function PlacesAutocomplete({
       if (place.location) {
         const lat = place.location.lat();
         const lng = place.location.lng();
-
-        console.log("Lugar seleccionado:", {
-          direccion: description,
-          coordenadas: { lat, lng },
-        });
 
         setInputValue(description);
         onPlaceSelect({

@@ -145,7 +145,7 @@ export function DriverHomeContent({ stats }: DriverHomeContentProps) {
                     <div className="flex items-center gap-2 text-sm">
                       <Armchair className="w-4 h-4 text-(--muted-foreground)" />
                       <span className="text-(--muted-foreground)">
-                        {ruta.asientosDisponibles} de {ruta.asientosTotales} asientos disponibles
+                        {ruta.asientosDisponibles} de {ruta.asientosDisponibles} asientos disponibles
                       </span>
                     </div>
                   </div>

@@ -47,6 +47,33 @@ export default async function RouteMapPage({ params }: RouteMapPageProps) {
     );
   }
 
+  // Validar si la ruta está finalizada
+  if (routeDetails.estado?.toUpperCase() === 'FINALIZADA') {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Detalle de Ruta en Mapa</h1>
+          <p className="text-muted-foreground">Visualiza tu ruta y confirma las estaciones</p>
+        </div>
+
+        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+          <div className="inline-block w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            📍
+          </div>
+          <h3 className="text-lg font-semibold text-yellow-900 mb-2">Ruta Finalizada</h3>
+          <p className="text-yellow-800 mb-4">
+            Esta ruta ya ha sido completada y no puede ser visualizada en tiempo real.
+          </p>
+          <a href="/driver/routes-map">
+            <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition">
+              ← Volver a Ver en el Mapa
+            </button>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>

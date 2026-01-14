@@ -1,20 +1,46 @@
 import { Suspense } from 'react';
-import { EarningsContent } from '@/components/driver/EarningsContent';
+import { getPayoutBalance } from '@/actions/payouts';
+import { getDriverPayments } from '@/actions/payments/driver';
+import { getPayoutHistory } from '@/actions/payouts/my';
+import { getDriverProfile } from '@/actions/drivers/profile';
+import { EarningsPageClient } from '@/components/driver/EarningsPageClient';
 import { EarningsSkeleton } from '@/components/common/SkeletonLoaders';
-import { ClientOnly } from '@/components/common/ClientOnly';
-import { obtenerEstadisticasConductor, obtenerTransaccionesConductor } from '@/lib/driverData';
 
 export const dynamic = 'force-dynamic';
 
 async function EarningsData() {
-  const conductorId = '2'; // En producción vendría del contexto de auth
-  const stats = await obtenerEstadisticasConductor(conductorId);
-  const transacciones = await obtenerTransaccionesConductor(conductorId);
+
+  const [balanceResponse, paymentsResponse, payoutsResponse, driverResponse] = await Promise.all([
+    getPayoutBalance(),
+    getDriverPayments(),
+    getPayoutHistory(),
+    getDriverProfile(),
+  ]);
+
+  // Balance data con valores por defecto si hay error
+  let balanceData = null;
+  if (balanceResponse.success && balanceResponse.data) {
+    // La API responde con data.data, entonces accedemos así
+    const balanceDataRaw = (balanceResponse.data as any).data || balanceResponse.data;
+    balanceData = {
+      availableForWithdrawal: balanceDataRaw?.availableForWithdrawal ?? 0,
+      monthlyEarnings: balanceDataRaw?.monthlyEarnings ?? 0,
+      pendingCollection: balanceDataRaw?.pendingCollection ?? 0,
+      completedTrips: balanceDataRaw?.completedTrips ?? 0,
+    };
+  }
+
+  const ingresos = paymentsResponse.success && paymentsResponse.data?.data ? paymentsResponse.data.data : [];
+  const retiros = payoutsResponse.success && payoutsResponse.data?.data ? payoutsResponse.data.data : [];
+  const paypalEmail = driverResponse.success && driverResponse.data?.driver?.paypalEmail ? driverResponse.data.driver.paypalEmail : null;
 
   return (
-    <ClientOnly fallback={<EarningsSkeleton />}>
-      <EarningsContent stats={stats} transacciones={transacciones} />
-    </ClientOnly>
+    <EarningsPageClient
+      initialBalanceData={balanceData}
+      initialIngresos={ingresos}
+      initialRetiros={retiros}
+      initialPaypalEmail={paypalEmail}
+    />
   );
 }
 

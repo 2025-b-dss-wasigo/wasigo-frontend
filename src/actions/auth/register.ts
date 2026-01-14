@@ -28,11 +28,11 @@ export async function authRegister(data: RegisterData): Promise<ApiResponse<Regi
       redirect: "follow"
     };
 
-    const response = await fetch("localhost:3000/api/auth/register", requestOptions)
-    return await response.json();
+    const response = await fetch("http://localhost:3000/api/auth/register", requestOptions)
+    const result = await response.json();
+    return result;
 
   } catch (error) {
-
     return createErrorResponse<RegisterResponse>("Registration failed");
 
   }

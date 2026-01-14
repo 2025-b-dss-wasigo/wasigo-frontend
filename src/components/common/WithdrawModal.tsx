@@ -17,6 +17,8 @@ import {
   ArrowRight, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
+import { requestPayout } from '@/actions/payouts';
 
 interface WithdrawModalProps {
   open: boolean;
@@ -28,7 +30,27 @@ interface WithdrawModalProps {
 export function WithdrawModal({ open, onOpenChange, availableBalance, paypalEmail }: WithdrawModalProps) {
   const [step, setStep] = useState<'amount' | 'confirm' | 'processing' | 'success'>('amount');
   const [amount, setAmount] = useState('');
-  const minAmount = 20;
+  const [error, setError] = useState('');
+  const minAmount = 5;
+  const { user } = useAuthStore();
+
+  const generateIdempotencyKey = (): string => {
+    if (!user?.alias) {
+      throw new Error('User alias not found');
+    }
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const dateStr = `${year}${month}${day}`;
+    const timeStr = `${hours}${minutes}`;
+
+    return `${user.alias}${dateStr}${timeStr}`;
+  };
 
   const handleContinue = () => {
     const numAmount = parseFloat(amount);
@@ -43,16 +65,38 @@ export function WithdrawModal({ open, onOpenChange, availableBalance, paypalEmai
     setStep('confirm');
   };
 
-  const handleWithdraw = () => {
-    setStep('processing');
-    setTimeout(() => {
-      setStep('success');
-    }, 2000);
+  const handleWithdraw = async () => {
+    try {
+      setStep('processing');
+      setError('');
+
+      const idempotencyKey = generateIdempotencyKey();
+      const numAmount = parseFloat(amount);
+
+      const response = await requestPayout({
+        amount: numAmount,
+        idempotencyKey,
+      });
+
+      if (response.success) {
+        setTimeout(() => {
+          setStep('success');
+        }, 2000);
+      } else {
+        setError(response.message || 'Error al procesar el retiro');
+        setStep('confirm');
+      }
+    } catch (err) {
+      console.error('Error in handleWithdraw:', err);
+      setError('Error al procesar el retiro. Intenta nuevamente.');
+      setStep('confirm');
+    }
   };
 
   const handleClose = () => {
     setStep('amount');
     setAmount('');
+    setError('');
     onOpenChange(false);
   };
 
@@ -103,7 +147,7 @@ export function WithdrawModal({ open, onOpenChange, availableBalance, paypalEmai
 
               {/* Quick Amount Buttons */}
               <div className="flex gap-2">
-                {[20, 50, 100].map((quickAmount) => (
+                {[5, 20, 50].map((quickAmount) => (
                   <Button
                     key={quickAmount}
                     variant="outline"
@@ -161,6 +205,13 @@ export function WithdrawModal({ open, onOpenChange, availableBalance, paypalEmai
             </DialogHeader>
 
             <div className="space-y-4 py-4">
+              {error && (
+                <div className="p-3 bg-red-500/10 rounded-lg flex items-start gap-3 border border-red-500/20">
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-500">{error}</p>
+                </div>
+              )}
+
               <div className="p-6 bg-(--muted)/50 rounded-lg text-center">
                 <p className="text-sm text-(--muted-foreground) mb-2">Monto a retirar</p>
                 <p className="text-4xl font-bold text-(--foreground)">${parseFloat(amount).toFixed(2)}</p>

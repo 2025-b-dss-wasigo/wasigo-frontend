@@ -68,6 +68,8 @@
 
   /* Font Family */
   --font-sans: 'DM Sans', sans-serif;
+
+  --gradient-hero: linear-gradient(135deg, hsl(168, 84%, 23%), hsl(168, 80%, 31%), hsl(168, 70%, 45%));
 }
 
 /* ===== Base Styles ===== */

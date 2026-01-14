@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Home,
@@ -24,6 +24,8 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { logout as logoutAction } from '@/actions'
 import { toast } from 'sonner';
+import { FullScreenLoader } from '@/components/common/FullScreenLoader';
+import Image from 'next/image';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -56,6 +58,7 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: Search, label: 'Buscar Rutas', href: '/passenger/routes', roles: ['PASAJERO'] },
       { icon: Car, label: 'Mis Viajes', href: '/passenger/my-trips', roles: ['PASAJERO'] },
+      { icon: CreditCard, label: 'Mis Pagos', href: '/passenger/payments', roles: ['PASAJERO'] },
     ]
   },
   {
@@ -86,6 +89,7 @@ const navGroups: NavGroup[] = [
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileClose }) => {
   const { user, logout } = useAuthStore();
   const location = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   if (!user) {
     return null;
@@ -153,6 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
   };
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
 
     const response = await logoutAction();
 
@@ -160,116 +165,134 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
       logout();
       redirect('/');
     } else {
-      console.log('Error al cerrar sesión')
       toast.error(response.message);
+      setIsLoggingOut(false);
     }
 
   }
 
   return (
-    <aside className={cn(
-      "fixed top-0 left-0 z-50 h-full bg-(--sidebar-background) text-(--sidebar-foreground) transition-all duration-300",
-      isOpen ? "w-64" : "w-20",
-      mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-    )}>
-      {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-(--sidebar-border)">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-(--sidebar-primary) flex items-center justify-center">
-            <Car className="w-6 h-6 text-(--sidebar-primary-foreground)" />
-          </div>
-          {isOpen && (
-            <span className="text-xl font-bold text-(--sidebar-foreground)">WasiGo</span>
-          )}
-        </Link>
-        <button
-          onClick={onMobileClose}
-          className="lg:hidden p-2 rounded-lg hover:bg-(--sidebar-accent)"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* User Info */}
-      {isOpen && (
-        <div className="p-4 border-b border-(--sidebar-border)">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-(--sidebar-accent) flex items-center justify-center text-(--sidebar-accent-foreground) font-semibold">
-              {user.nombre?.charAt(0) || 'U'}{user.apellido?.charAt(0) || 'U'}
+    <>
+      <FullScreenLoader isOpen={isLoggingOut} message="Cerrando sesión..." />
+      <aside className={cn(
+        "fixed top-0 left-0 z-50 h-full bg-(--sidebar-background) text-(--sidebar-foreground) transition-all duration-300",
+        isOpen ? "w-64" : "w-20",
+        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-(--sidebar-border)">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-(--sidebar-primary) flex items-center justify-center">
+              <Car className="w-6 h-6 text-(--sidebar-primary-foreground)" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{user.nombre} {user.apellido}</p>
-              <p className="text-xs text-(--sidebar-foreground)/70 truncate">{user.alias}</p>
-            </div>
-          </div>
-          <div className="mt-2">
-            {getRoleBadge()}
-          </div>
+            {isOpen && (
+              <span className="text-xl font-bold text-(--sidebar-foreground)">WasiGo</span>
+            )}
+          </Link>
+          <button
+            onClick={onMobileClose}
+            className="lg:hidden p-2 rounded-lg hover:bg-(--sidebar-accent)"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      )}
 
-      {/* Navigation */}
-      <nav className="p-3 flex-1 overflow-y-auto">
-        <div className="space-y-4">
-          {filteredGroups.map((group, groupIndex) => (
-            <div key={groupIndex}>
-              {group.separator && isOpen && (
-                <div className="h-px bg-(--sidebar-border) mb-4" />
+        {/* User Info */}
+        {isOpen && (
+          <div className="p-4 border-b border-(--sidebar-border)">
+            <div className="flex items-center gap-3">
+
+              {user?.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={`${user?.nombre} ${user?.apellido}`}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-(--primary) flex items-center justify-center text-white font-semibold text-sm">
+                  {user?.nombre && user?.apellido
+                    ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}`.toUpperCase()
+                    : user?.nombre?.charAt(0).toUpperCase() || '?'}
+                </div>
               )}
-              {group.title && isOpen && (
-                <p className="px-3 mb-2 text-xs font-semibold text-(--sidebar-foreground)/50 uppercase tracking-wider">
-                  {group.title}
-                </p>
-              )}
-              <ul className="space-y-1">
-                {group.items.map((item) => {
-                  const isActive = location === item.href;
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={onMobileClose}
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                          isActive
-                            ? "bg-(--sidebar-primary) text-(--sidebar-primary-foreground)"
-                            : "hover:bg-(--sidebar-accent) text-(--sidebar-foreground)/80 hover:text-(--sidebar-foreground)"
-                        )}
-                      >
-                        <item.icon className="w-5 h-5 shrink-0" />
-                        {isOpen && (
-                          <>
-                            <span className="flex-1 text-sm font-medium">{item.label}</span>
-                            {item.badge && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-(--sidebar-primary-foreground)/20 text-(--sidebar-primary-foreground)">
-                                {item.badge}
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+
+
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm truncate">{user.nombre} {user.apellido}</p>
+                <p className="text-xs text-(--sidebar-foreground)/70 truncate">{user.alias}</p>
+              </div>
             </div>
-          ))}
-        </div>
-      </nav>
+            <div className="mt-2">
+              {getRoleBadge()}
+            </div>
+          </div>
+        )}
 
-      {/* Logout */}
-      <div className="p-3 border-t border-(--sidebar-border)">
-        <button
-          onClick={handleLogout}
-          className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-            "text-(--sidebar-foreground)/70 hover:text-(--sidebar-foreground) hover:bg-(--sidebar-accent)"
-          )}
-        >
-          <LogOut className="w-5 h-5" />
-          {isOpen && <span className="text-sm font-medium">Cerrar Sesión</span>}
-        </button>
-      </div>
-    </aside>
+        {/* Navigation */}
+        <nav className="p-3 flex-1 overflow-y-auto">
+          <div className="space-y-4">
+            {filteredGroups.map((group, groupIndex) => (
+              <div key={groupIndex}>
+                {group.separator && isOpen && (
+                  <div className="h-px bg-(--sidebar-border) mb-4" />
+                )}
+                {group.title && isOpen && (
+                  <p className="px-3 mb-2 text-xs font-semibold text-(--sidebar-foreground)/50 uppercase tracking-wider">
+                    {group.title}
+                  </p>
+                )}
+                <ul className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = location === item.href;
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={onMobileClose}
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                            isActive
+                              ? "bg-(--sidebar-primary) text-(--sidebar-primary-foreground)"
+                              : "hover:bg-(--sidebar-accent) text-(--sidebar-foreground)/80 hover:text-(--sidebar-foreground)"
+                          )}
+                        >
+                          <item.icon className="w-5 h-5 shrink-0" />
+                          {isOpen && (
+                            <>
+                              <span className="flex-1 text-sm font-medium">{item.label}</span>
+                              {item.badge && (
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-(--sidebar-primary-foreground)/20 text-(--sidebar-primary-foreground)">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </nav>
+
+        {/* Logout */}
+        <div className="p-3 border-t border-(--sidebar-border)">
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+              "text-(--sidebar-foreground)/70 hover:text-(--sidebar-foreground) hover:bg-(--sidebar-accent)"
+            )}
+          >
+            <LogOut className="w-5 h-5" />
+            {isOpen && <span className="text-sm font-medium">Cerrar Sesión</span>}
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };

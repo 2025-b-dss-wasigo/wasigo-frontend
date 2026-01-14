@@ -73,13 +73,21 @@ export const TopBar: React.FC<TopBarProps> = ({
           </div>
         )}
 
-        <Image
-          src={user?.avatarUrl || '/default-avatar.png'}
-          alt={`${user?.nombre} ${user?.apellido}`}
-          width={36}
-          height={36}
-          className="w-9 h-9 rounded-full object-cover"
-        />
+        {user?.avatarUrl ? (
+          <Image
+            src={user.avatarUrl}
+            alt={`${user?.nombre} ${user?.apellido}`}
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-(--primary) flex items-center justify-center text-white font-semibold text-sm">
+            {user?.nombre && user?.apellido
+              ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}`.toUpperCase()
+              : user?.nombre?.charAt(0).toUpperCase() || '?'}
+          </div>
+        )}
       </div>
     </header>
   );

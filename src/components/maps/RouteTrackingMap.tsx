@@ -1,42 +1,44 @@
-// DESHABILITADO TEMPORALMENTE - Falta dependencia @react-google-maps/api
-// TODO: Instalar: npm install @react-google-maps/api
+'use client';
 
-/*
-"use client";
-
-import { useEffect, useState, useCallback, useRef } from "react";
-import { GoogleMap, DirectionsRenderer, useJsApiLoader } from "@react-google-maps/api";
-
-// Datos quemados para demostración
-const MOCK_ROUTE_DATA = {
-  origin: { lat: -0.1807, lng: -78.4678 }, // Quito Centro
-  destination: { lat: -0.2902, lng: -78.5497 }, // Quitumbe
-  waypoints: [
-    { lat: -0.2108, lng: -78.4903 }, // El Recreo
-    { lat: -0.2525, lng: -78.5233 }, // Villaflora
-  ],
-};
-
-const mapContainerStyle = {
-  width: "100%",
-  height: "600px",
-};
-
-const center = {
-  lat: -0.1807,
-  lng: -78.4678,
-};
-
-const libraries: ("places" | "drawing" | "geometry" | "visualization" | "marker")[] = ["places", "marker"];
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { GoogleMap, DirectionsRenderer, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { Button } from '@/components/ui/button';
+import { MapPin, Navigation } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RouteTrackingMapProps {
   routeId: string;
-  userType: "driver" | "passenger";
+  userType: 'driver' | 'passenger';
+}
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '600px',
+};
+
+const libraries: ('places' | 'drawing' | 'geometry' | 'visualization' | 'marker')[] = ['places', 'marker'];
+
+interface Stop {
+  publicId: string;
+  lat: string;
+  lng: string;
+  direccion: string;
+  orden: number;
+}
+
+interface RouteData {
+  publicId: string;
+  origen: string;
+  destinoBase: string;
+  stops: Stop[];
+  fecha: string;
+  horaSalida: string;
+  estado?: string;
 }
 
 export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMapProps) {
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
   });
 
@@ -45,19 +47,50 @@ export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMap
   const [locationError, setLocationError] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
-  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [routeData, setRouteData] = useState<RouteData | null>(null);
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const watchIdRef = useRef<number | null>(null);
+  const stopMarkersRef = useRef<google.maps.Marker[]>([]);
 
-  // Solicitar permisos de geolocalización y obtener ubicación en tiempo real
+  // Obtener datos de la ruta
+  useEffect(() => {
+    const fetchRouteData = async () => {
+      try {
+        const response = await fetch(`/api/routes/${routeId}`, {
+          headers: { 'Cache-Control': 'no-cache' },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setRouteData(data.data);
+
+          // Validar si la ruta está finalizada
+          if (data.data?.estado?.toUpperCase() === 'FINALIZADA') {
+            toast.info('Ruta finalizada', {
+              description: 'Esta ruta ya ha sido completada y no puede ser visualizada en tiempo real'
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching route data:', error);
+        toast.error('Error al cargar datos de la ruta');
+      }
+    };
+
+    if (routeId) {
+      fetchRouteData();
+    }
+  }, [routeId]);
+
+  // Obtener geolocalización en tiempo real
   useEffect(() => {
     if (!isLoaded) return;
 
     if (!navigator.geolocation) {
-      setLocationError("Tu navegador no soporta geolocalización");
+      setLocationError('Tu navegador no soporta geolocalización');
       return;
     }
 
-    // Solicitar ubicación actual
+    // Ubicación inicial
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const newLocation = {
@@ -65,46 +98,10 @@ export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMap
           lng: position.coords.longitude,
         };
         setUserLocation(newLocation);
-        console.log("Ubicación inicial obtenida:", newLocation);
       },
       (error) => {
-        console.error("Error al obtener ubicación:", error);
-        setLocationError("No se pudo obtener tu ubicación. Verifica los permisos.");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0,
-      }
-    );
-
-    // Monitorear cambios de ubicación en tiempo real
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        setUserLocation(newLocation);
-
-        // Centrar automáticamente solo si el usuario no ha interactuado
-        if (map && !userHasInteracted) {
-          map.panTo(newLocation);
-          map.setZoom(20);
-        }
-
-        // Enviar ubicación al servidor
-        console.log("Enviando posición en tiempo real al servidor:", {
-          lat: newLocation.lat,
-          lng: newLocation.lng,
-          timestamp: new Date().toISOString(),
-          routeId,
-          userType,
-          accuracy: position.coords.accuracy,
-        });
-      },
-      (error) => {
-        console.error("Error al monitorear ubicación:", error);
+        console.error('Error al obtener ubicación:', error);
+        setLocationError('No se pudo obtener tu ubicación. Verifica los permisos.');
       },
       {
         enableHighAccuracy: true,
@@ -113,114 +110,161 @@ export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMap
       }
     );
 
-    // Limpiar el monitoreo al desmontar
+    // Monitorear ubicación en tiempo real
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(newLocation);
+
+        // Auto-centrar solo si el usuario no ha interactuado
+        if (map && !userHasInteracted) {
+          map.panTo(newLocation);
+          map.setZoom(18);
+        }
+      },
+      (error) => {
+        console.error('Error al monitorear ubicación:', error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+
     return () => {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
     };
-  }, [isLoaded, routeId, userType, map, userHasInteracted]);
+  }, [isLoaded, map, userHasInteracted]);
 
-  // Crear marcador avanzado para la ubicación del usuario
+  // Crear marcador del usuario
   useEffect(() => {
     if (!map || !userLocation || !isLoaded) return;
 
-    // Crear el icono del carrito usando SVG
-    const carIcon = document.createElement("div");
-    carIcon.innerHTML = `
-      <div style="
-        background-color: ${userType === "driver" ? "#3B82F6" : "#10B981"};
-        border: 3px solid white;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        font-size: 20px;
-      ">
-        🚗
-      </div>
-    `;
-
-    // Si ya existe un marcador, eliminarlo
+    // Eliminar marcador anterior
     if (userMarkerRef.current) {
-      userMarkerRef.current.map = null;
+      userMarkerRef.current.setMap(null);
     }
 
-    // Crear nuevo AdvancedMarkerElement
-    const marker = new google.maps.marker.AdvancedMarkerElement({
+    // Crear nuevo marcador con símbolo de círculo
+    const userMarkerColor = userType === 'driver' ? '#3B82F6' : '#10B981';
+    const userMarker = new google.maps.Marker({
       map,
       position: userLocation,
-      content: carIcon,
-      title: userType === "driver" ? "Tu ubicación (Conductor)" : "Tu ubicación",
+      title: userType === 'driver' ? 'Tu ubicación (Conductor)' : 'Tu ubicación (Pasajero)',
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: userMarkerColor,
+        fillOpacity: 1,
+        strokeColor: 'white',
+        strokeWeight: 2,
+      },
     });
 
-    userMarkerRef.current = marker;
+    userMarkerRef.current = userMarker;
 
     return () => {
       if (userMarkerRef.current) {
-        userMarkerRef.current.map = null;
+        userMarkerRef.current.setMap(null);
       }
     };
   }, [map, userLocation, isLoaded, userType]);
 
-  // Calcular la ruta más rápida (con datos mock)
-  const calculateRoute = useCallback(() => {
-    if (!isLoaded) return;
-
-    const directionsService = new google.maps.DirectionsService();
-
-    const waypoints = MOCK_ROUTE_DATA.waypoints.map((point) => ({
-      location: new google.maps.LatLng(point.lat, point.lng),
-      stopover: true,
-    }));
-
-    directionsService.route(
-      {
-        origin: new google.maps.LatLng(MOCK_ROUTE_DATA.origin.lat, MOCK_ROUTE_DATA.origin.lng),
-        destination: new google.maps.LatLng(
-          MOCK_ROUTE_DATA.destination.lat,
-          MOCK_ROUTE_DATA.destination.lng
-        ),
-        waypoints,
-        optimizeWaypoints: true,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result) {
-          setDirections(result);
-
-          console.log("Ruta calculada (MOCK):", {
-            distancia: result.routes[0].legs.reduce((acc, leg) => acc + (leg.distance?.value || 0), 0),
-            duracion: result.routes[0].legs.reduce((acc, leg) => acc + (leg.duration?.value || 0), 0),
-            inicio: MOCK_ROUTE_DATA.origin,
-            fin: MOCK_ROUTE_DATA.destination,
-            paradas: MOCK_ROUTE_DATA.waypoints,
-          });
-        } else {
-          console.error("Error al calcular la ruta:", status);
-        }
-      }
-    );
-  }, [isLoaded]);
-
+  // Crear marcadores de paradas y calcular ruta
   useEffect(() => {
-    calculateRoute();
-  }, [calculateRoute]);
+    if (!isLoaded || !map || !routeData) return;
 
-  const onMapLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
-  }, []);
+    // Limpiar marcadores antiguos
+    stopMarkersRef.current.forEach((marker) => marker.setMap(null));
+    stopMarkersRef.current = [];
 
-  // Función para centrar el mapa en la ubicación del usuario
+    // Ordenar paradas correctamente por "orden"
+    const sortedStops = [...routeData.stops].sort((a, b) => a.orden - b.orden);
+    const maxOrden = Math.max(...sortedStops.map(s => s.orden));
+
+    // Crear marcadores para cada parada
+    sortedStops.forEach((stop, index) => {
+      const stopLat = parseFloat(stop.lat);
+      const stopLng = parseFloat(stop.lng);
+      const isOrigin = stop.orden === 1;
+      const isDestination = stop.orden === maxOrden;
+
+      let markerColor: string;
+      let markerTitle: string;
+
+      if (isOrigin) {
+        markerColor = '#22C55E'; // Green for origin
+        markerTitle = 'Punto de Salida';
+      } else if (isDestination) {
+        markerColor = '#EF4444'; // Red for destination
+        markerTitle = 'Punto de Destino';
+      } else {
+        markerColor = '#F59E0B'; // Amber for intermediate stops
+        markerTitle = `Parada ${stop.orden}`;
+      }
+
+      const stopMarker = new google.maps.Marker({
+        map,
+        position: { lat: stopLat, lng: stopLng },
+        title: markerTitle,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 7,
+          fillColor: markerColor,
+          fillOpacity: 1,
+          strokeColor: 'white',
+          strokeWeight: 2,
+        },
+      });
+
+      stopMarkersRef.current.push(stopMarker);
+    });
+
+    // Calcular ruta con DirectionsService
+    const directionsService = new google.maps.DirectionsService();
+    const firstStop = sortedStops.find(s => s.orden === 1);
+    const lastStop = sortedStops.find(s => s.orden === maxOrden);
+
+    if (firstStop && lastStop) {
+      const waypoints = sortedStops
+        .filter(s => s.orden !== 1 && s.orden !== maxOrden)
+        .map((stop) => ({
+          location: { lat: parseFloat(stop.lat), lng: parseFloat(stop.lng) },
+          stopover: true,
+        }));
+
+      directionsService.route(
+        {
+          origin: { lat: parseFloat(firstStop.lat), lng: parseFloat(firstStop.lng) },
+          destination: { lat: parseFloat(lastStop.lat), lng: parseFloat(lastStop.lng) },
+          waypoints,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK && result) {
+            setDirections(result);
+          } else {
+            console.error('Error al calcular la ruta:', status);
+            toast.error('Error al calcular la ruta');
+          }
+        }
+      );
+    }
+  }, [isLoaded, map, routeData]);
+
+  // Centrar en ubicación del usuario
   const centerOnUser = useCallback(() => {
     if (map && userLocation) {
       map.panTo(userLocation);
-      map.setZoom(20); // Zoom más cercano
-      setUserHasInteracted(false); // Resetear bandera para seguir centrado automáticamente
-      console.log("Mapa centrado en ubicación del usuario");
+      map.setZoom(18);
+      setUserHasInteracted(false);
+      toast.success('Centrado en tu ubicación');
     }
   }, [map, userLocation]);
 
@@ -240,68 +284,73 @@ export default function RouteTrackingMap({ routeId, userType }: RouteTrackingMap
     );
   }
 
+  if (routeData?.estado?.toUpperCase() === 'FINALIZADA') {
+    return (
+      <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+        <div className="inline-block w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+          <MapPin className="w-6 h-6 text-yellow-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-yellow-900 mb-2">Ruta Finalizada</h3>
+        <p className="text-yellow-800 mb-4">
+          Esta ruta ya ha sido completada y no puede ser visualizada en tiempo real.
+        </p>
+        <Button variant="outline" onClick={() => window.history.back()}>
+          ← Volver
+        </Button>
+      </div>
+    );
+  }
+
+  if (locationError) {
+    return (
+      <div className="p-4 bg-yellow-50 text-yellow-600 rounded">
+        {locationError}
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="relative w-full" style={{ height: '600px' }}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        center={userLocation || center}
-        zoom={20}
-        onLoad={onMapLoad}
+        center={userLocation || { lat: 0, lng: 0 }}
+        zoom={18}
+        onLoad={(mapInstance) => setMap(mapInstance)}
         onDragStart={() => setUserHasInteracted(true)}
-        onZoomChanged={() => {
-          if (map) {
-            setUserHasInteracted(true);
-          }
-        }}
+        onZoomChanged={() => setUserHasInteracted(true)}
         options={{
-          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: true,
           zoomControl: false,
-          gestureHandling: "greedy",
-          tilt: 45,
-          heading: 0,
-          mapTypeId: "roadmap",
-          disableDefaultUI: false,
+          gestureHandling: 'greedy',
+          mapTypeId: 'roadmap',
         }}
       >
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
 
-      {/* Botón flotante para centrar en ubicación * / }
-        <button
-          onClick={centerOnUser}
-          className="absolute bottom-24 right-4 bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10 border border-gray-200"
-          title="Centrar en mi ubicación"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-            />
-          </svg>
-        </button>
-      )}
-    </>
-  );
-}
-*/
+      {/* Botón para centrar en ubicación */}
+      <Button
+        onClick={centerOnUser}
+        className="absolute bottom-6 right-6 z-10 rounded-full p-3 shadow-lg"
+        size="icon"
+        title="Centrar en mi ubicación"
+      >
+        <Navigation className="w-5 h-5" />
+      </Button>
 
-// Exportar componente dummy mientras se instala la dependencia
-export default function RouteTrackingMap({ routeId, userType }: { routeId?: string; userType?: string }) {
-  return <div className="w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg">RouteTrackingMap - pendiente de configuración de Google Maps</div>;
+      {/* Info de ubicación actual */}
+      {userLocation && (
+        <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-md z-10 max-w-xs">
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <MapPin className="w-4 h-4 text-blue-500" />
+            <span>
+              Lat: {userLocation.lat.toFixed(4)}, Lng: {userLocation.lng.toFixed(4)}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
