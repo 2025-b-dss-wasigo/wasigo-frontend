@@ -39,9 +39,12 @@ export function RoutesMapContent({ routes }: RoutesMapContentProps) {
     });
   };
 
+  // Filtrar rutas que no estén FINALIZADA
+  const activeRoutes = routes.filter(r => r.estado?.toUpperCase() !== 'FINALIZADA');
+
   return (
     <div className="space-y-4">
-      {routes.length === 0 ? (
+      {activeRoutes.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <Car className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -50,7 +53,7 @@ export function RoutesMapContent({ routes }: RoutesMapContentProps) {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {routes.map(route => (
+          {activeRoutes.map(route => (
             <Card key={route.publicId} className="hover:shadow-md transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between gap-4">

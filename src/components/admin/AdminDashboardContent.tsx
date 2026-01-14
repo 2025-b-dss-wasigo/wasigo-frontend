@@ -1,150 +1,149 @@
-'use client'
+'use client';
 
-import { StatCard } from '@/components/common/StatCard';
-import { StatusBadge } from '@/components/common/StatusBadge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Car,
-  Users,
-  CreditCard,
-  TrendingUp,
-  FileText,
-  User,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import Link from 'next/link';
-import { EstadisticasAdmin } from '@/lib/adminData';
-import { SolicitudConductor, Transaccion } from '@/data/mockData';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, FileText, DollarSign } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Driver } from '@/interfaces/responses/admin/GetDriverRequestsResponse';
+import type { PayoutAdmin } from '@/actions/payouts';
 
 interface AdminDashboardContentProps {
-  estadisticas: EstadisticasAdmin;
-  solicitudesPendientes: SolicitudConductor[];
-  transaccionesRecientes: Transaccion[];
+  driverRequests: Driver[];
+  payouts: PayoutAdmin[];
 }
 
 export function AdminDashboardContent({
-  estadisticas,
-  solicitudesPendientes,
-  transaccionesRecientes
+  driverRequests,
+  payouts,
 }: AdminDashboardContentProps) {
+  const router = useRouter();
+
+  const getRequestStatusColor = (estado: string) => {
+    switch (estado?.toUpperCase()) {
+      case 'APROBADO':
+        return 'bg-green-100 text-green-800';
+      case 'RECHAZADO':
+        return 'bg-red-100 text-red-800';
+      case 'PENDIENTE':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPayoutStatusColor = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case 'PAID':
+        return 'bg-green-100 text-green-800';
+      case 'FAILED':
+        return 'bg-red-100 text-red-800';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-(--foreground) mb-2">Panel de Administrador</h2>
-        <p className="text-(--muted-foreground)">Gestión general de la plataforma</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Usuarios"
-          value={estadisticas.totalUsuarios}
-          icon={Users}
-          trend={{ value: 8, positive: true }}
-          className="stagger-1"
-        />
-        <StatCard
-          title="Solicitudes Pendientes"
-          value={estadisticas.solicitudesPendientes}
-          icon={FileText}
-          className="stagger-2"
-          iconClassName="bg-(--warning)/10 text-(--warning)"
-        />
-        <StatCard
-          title="Ingresos del Mes"
-          value={`$${estadisticas.ingresosDelMes.toFixed(2)}`}
-          icon={TrendingUp}
-          trend={{ value: 15, positive: true }}
-          className="stagger-3"
-          iconClassName="bg-(--success)/10 text-(--success)"
-        />
-        <StatCard
-          title="Viajes Activos"
-          value={estadisticas.viajesActivos}
-          icon={Car}
-          className="stagger-4"
-        />
-      </div>
-
-      {/* Grid de gestión */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Solicitudes de Conductor */}
-        <div className="card-elevated">
-          <div className="p-4 border-b border-(--border) flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-(--foreground)">Solicitudes de Conductor</h3>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/requests">Ver todas</Link>
-            </Button>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Driver Requests */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-(--primary)" />
+            <div>
+              <CardTitle>Solicitudes de Conductor</CardTitle>
+              <p className="text-xs text-(--muted-foreground) mt-1">Últimas solicitudes pendientes de revisión</p>
+            </div>
           </div>
-
-          <div className="divide-y divide-(--border)">
-            {solicitudesPendientes.map((solicitud) => (
-              <div key={solicitud.id} className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-(--primary)/10 flex items-center justify-center text-(--primary) font-semibold">
-                      {solicitud.nombre.charAt(0)}{solicitud.apellido.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-(--foreground)">{solicitud.nombre} {solicitud.apellido}</p>
-                      <p className="text-sm text-(--muted-foreground)">{solicitud.email}</p>
-                    </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {driverRequests.length === 0 ? (
+            <div className="text-center py-8 text-(--muted-foreground)">
+              No hay solicitudes de conductor
+            </div>
+          ) : (
+            <>
+              {driverRequests.map((request) => (
+                <div
+                  key={request.publicId}
+                  className="flex items-center justify-between p-3 border border-(--border) rounded-lg hover:bg-(--muted)/50 transition-colors"
+                >
+                  <div className="flex-1 space-y-1">
+                    <p className="font-medium text-(--foreground) text-sm">
+                      {request.userName}
+                    </p>
+                    <p className="text-xs text-(--muted-foreground)">
+                      {new Date(request.fechaSolicitud).toLocaleDateString('es-EC')}
+                    </p>
                   </div>
-                  <StatusBadge status={solicitud.estado} />
+                  <Badge className={getRequestStatusColor(request.estado)}>
+                    {request.estado}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-(--muted-foreground) mt-2">
-                  <span>{solicitud.vehiculo.marca} {solicitud.vehiculo.modelo}</span>
-                  <span>•</span>
-                  <span>{solicitud.vehiculo.placa}</span>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="success" onClick={() => toast.success('Solicitud aprobada')}>
-                    Aprobar
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => toast.error('Solicitud rechazada')}>
-                    Rechazar
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push('/admin/requests')}
+              >
+                Ver todas las solicitudes
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Últimas Transacciones */}
-        <div className="card-elevated">
-          <div className="p-4 border-b border-(--border) flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-(--foreground)">Últimas Transacciones</h3>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/transactions">Ver todas</Link>
-            </Button>
+      {/* Payouts */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-(--primary)" />
+            <div>
+              <CardTitle>Historial de Pagos</CardTitle>
+              <p className="text-xs text-(--muted-foreground) mt-1">Últimos pagos a conductores</p>
+            </div>
           </div>
-
-          <div className="divide-y divide-(--border)">
-            {transaccionesRecientes.map((tx) => (
-              <div key={tx.id} className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.tipo === 'ingreso' ? 'bg-(--success)/10' :
-                    tx.tipo === 'egreso' ? 'bg-(--destructive)/10' : 'bg-(--warning)/10'
-                    }`}>
-                    <CreditCard className={`w-5 h-5 ${tx.tipo === 'ingreso' ? 'text-(--success)' :
-                      tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
-                      }`} />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {payouts.length === 0 ? (
+            <div className="text-center py-8 text-(--muted-foreground)">
+              No hay pagos registrados
+            </div>
+          ) : (
+            <>
+              {payouts.map((payout) => (
+                <div
+                  key={payout.publicId}
+                  className="flex items-center justify-between p-3 border border-(--border) rounded-lg hover:bg-(--muted)/50 transition-colors"
+                >
+                  <div className="flex-1 space-y-1">
+                    <p className="font-medium text-(--foreground) text-sm">
+                      ${parseFloat(payout.amount).toFixed(2)}
+                    </p>
+                    <p className="text-xs text-(--muted-foreground)">
+                      {payout.driver.paypalEmail} • {payout.period}
+                    </p>
                   </div>
-                  <div>
-                    <p className="font-medium text-(--foreground) text-sm">{tx.concepto}</p>
-                    <p className="text-xs text-(--muted-foreground)">{tx.usuario} • {tx.fecha}</p>
-                  </div>
+                  <Badge className={getPayoutStatusColor(payout.status)}>
+                    {payout.status}
+                  </Badge>
                 </div>
-                <p className={`font-semibold ${tx.tipo === 'ingreso' ? 'text-(--success)' :
-                  tx.tipo === 'egreso' ? 'text-(--destructive)' : 'text-(--warning)'
-                  }`}>
-                  {tx.tipo === 'ingreso' ? '+' : ''}${Math.abs(tx.monto).toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              ))}
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push('/admin/transactions')}
+              >
+                Ver todos los pagos
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

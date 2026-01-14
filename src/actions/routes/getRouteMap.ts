@@ -1,8 +1,10 @@
 import { fetchWithToken } from '../fetch-with-token';
+import { ApiResponse } from '@/interfaces';
+import { RouteMapData } from '@/interfaces/responses/routes/RouteMapResponse.interface';
 
-export async function getRouteMap(routeId: string) {
+export async function getRouteMap(routeId: string): Promise<ApiResponse<RouteMapData>> {
   try {
-    const response = await fetchWithToken<any>(`/routes/${routeId}/map`, {
+    const response = await fetchWithToken<RouteMapData>(`/routes/${routeId}/map`, {
       method: 'GET',
     });
 

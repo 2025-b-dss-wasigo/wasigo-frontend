@@ -11,8 +11,6 @@ export interface ConfirmResponse {
 
 export const ConfirmVerificationCode = async (code: string): Promise<ConfirmResponse> => {
 
-  console.log(code)
-
   try {
 
     const requestOptions: RequestInit = {

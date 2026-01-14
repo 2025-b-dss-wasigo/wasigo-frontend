@@ -23,7 +23,7 @@ export async function authForgotPassword(data: ForgotPasswordRequest): Promise<A
       redirect: "follow"
     };
 
-    const response = await fetch("localhost:3000/api/auth/forgot-password", requestOptions)
+    const response = await fetch("http://localhost:3000/api/auth/forgot-password", requestOptions)
     return await response.json();
 
   } catch (error) {

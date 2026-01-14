@@ -42,7 +42,6 @@ export async function authLogin(credentials: LoginCredentials): Promise<ApiRespo
     return result;
 
   } catch (error) {
-    console.log(error)
     return createErrorResponse<AuthResponse>("Login failed");
   }
 

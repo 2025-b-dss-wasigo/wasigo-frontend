@@ -9,15 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  MapPin, Clock, Users, DollarSign, Calendar,
-  ArrowRight, Car, Info, CheckCircle2
+  MapPin, Users, DollarSign, Calendar,
+  ArrowRight, Car, CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { FormularioRuta } from '@/interfaces';
 import PlacesAutocomplete from '@/components/maps/PlacesAutocomplete';
 import { createRoute } from '@/actions';
-import { CreateRouteRequest, GeoPoint, OrigenCampus } from '@/interfaces/routes/CreateRouteRequest.interface';
+import { CreateRouteRequest, OrigenCampus } from '@/interfaces/routes/CreateRouteRequest.interface';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 
 const diasSemana = [
@@ -28,9 +28,8 @@ const diasSemana = [
   { id: 'viernes', label: 'Viernes', dayOfWeek: 5 },
 ];
 
-const horasDisponibles = [
-  '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00',
-];
+const horasDisponibles = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+const minutosDisponibles = [0, 15, 30, 45];
 
 const origenesDisponibles = [
   {
@@ -74,10 +73,15 @@ const getWeekDaysWithDates = () => {
   const weekDays = diasSemana.map((dia, index) => {
     const date = new Date(firstDay);
     date.setDate(date.getDate() + index);
+    // Usar formato local en lugar de UTC para evitar desfase de timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const fullDate = `${year}-${month}-${day}`;
     return {
       ...dia,
       date: date.getDate(),
-      fullDate: date.toISOString().split('T')[0] // Formato YYYY-MM-DD
+      fullDate: fullDate // Formato YYYY-MM-DD en zona horaria local
     };
   });
 
@@ -93,7 +97,7 @@ export function CreateRouteForm() {
   const [formData, setFormData] = useState<FormularioRuta>({
     origen: 'CAMPUS_PRINCIPAL',
     destino: '',
-    hora: '',
+    hora: '08:00',
     diasRecurrentes: [] as string[],
     asientosDisponibles: 3,
     precioPorAsiento: 1.50,
@@ -132,14 +136,16 @@ export function CreateRouteForm() {
       // Crear las paradas (solo destino)
       const stops = [
         {
+          lat: origenSeleccionado.coordenadas.lat,
+          lng: origenSeleccionado.coordenadas.lng,
+          direccion: origenSeleccionado.displayValue
+        },
+        {
           lat: destinoCoordenadas.lat,
           lng: destinoCoordenadas.lng,
           direccion: formData.destino
         }
       ];
-
-      console.log("Coordenadas enviadas al API:", stops);
-
       // Construir el body para el API
       const routeData: CreateRouteRequest = {
         origen: origenSeleccionado.apiValue,
@@ -188,13 +194,13 @@ export function CreateRouteForm() {
 
       {/* Progress Steps */}
       <div className="flex items-center justify-center">
-        {[1, 2, 3].map((s) => (
+        {[1, 2, 3, 4].map((s) => (
           <div key={s} className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s ? 'bg-(--primary) text-(--primary-foreground)' : 'bg-(--muted) text-(--muted-foreground)'
               }`}>
               {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
             </div>
-            {s < 3 && (
+            {s < 4 && (
               <div className={`w-16 sm:w-24 h-1 mx-2 rounded ${step > s ? 'bg-(--primary)' : 'bg-(--muted)'
                 }`} />
             )}
@@ -219,12 +225,6 @@ export function CreateRouteForm() {
                 value={formData.origen}
                 onValueChange={(v) => {
                   const origenSeleccionado = origenesDisponibles.find(o => o.apiValue === v);
-                  if (origenSeleccionado) {
-                    console.log("Origen seleccionado:", {
-                      campus: origenSeleccionado.label,
-                      coordenadas: origenSeleccionado.coordenadas
-                    });
-                  }
                   setFormData({ ...formData, origen: v as OrigenCampus });
                 }}
               >
@@ -247,7 +247,6 @@ export function CreateRouteForm() {
                 placeholder="Ej: San Rafael, Valle de los Chillos"
                 defaultValue={formData.destino}
                 onPlaceSelect={(place) => {
-                  console.log("Respuesta completa de Google Maps:", place);
                   setFormData({ ...formData, destino: place.address });
                   setDestinoCoordenadas({ lat: place.lat, lng: place.lng });
 
@@ -257,16 +256,40 @@ export function CreateRouteForm() {
 
             <div className="space-y-2">
               <Label htmlFor="hora">Hora de Salida</Label>
-              <Select value={formData.hora} onValueChange={(v) => setFormData({ ...formData, hora: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona la hora" />
-                </SelectTrigger>
-                <SelectContent>
-                  {horasDisponibles.map((hora) => (
-                    <SelectItem key={hora} value={hora}>{hora}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="horas" className="text-sm">Hora</Label>
+                  <Select value={String(parseInt(formData.hora.split(':')[0]))} onValueChange={(v) => {
+                    const minutos = formData.hora.split(':')[1] || '00';
+                    setFormData({ ...formData, hora: `${v.padStart(2, '0')}:${minutos}` });
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Hora" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {horasDisponibles.map((hora) => (
+                        <SelectItem key={hora} value={String(hora)}>{String(hora).padStart(2, '0')}:00</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="minutos" className="text-sm">Minuto</Label>
+                  <Select value={String(parseInt(formData.hora.split(':')[1]))} onValueChange={(v) => {
+                    const horas = formData.hora.split(':')[0] || '08';
+                    setFormData({ ...formData, hora: `${horas}:${v.padStart(2, '0')}` });
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Minuto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {minutosDisponibles.map((minuto) => (
+                        <SelectItem key={minuto} value={String(minuto)}>{String(minuto).padStart(2, '0')}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end pt-4">
@@ -374,7 +397,7 @@ export function CreateRouteForm() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setFormData({ ...formData, asientosDisponibles: Math.min(7, formData.asientosDisponibles + 1) })}
+                  onClick={() => setFormData({ ...formData, asientosDisponibles: Math.min(6, formData.asientosDisponibles + 1) })}
                 >
                   +
                 </Button>
@@ -399,6 +422,74 @@ export function CreateRouteForm() {
               <p className="text-xs text-(--muted-foreground)">Precio recomendado: $1.00 - $2.00</p>
             </div>
 
+            <div className="flex justify-between pt-4">
+              <Button variant="outline" onClick={() => setStep(2)}>
+                Atrás
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => setStep(4)}
+              >
+                Siguiente
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 4: Summary and Confirmation */}
+      {step === 4 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-(--primary)" />
+              Resumen de la Ruta
+            </CardTitle>
+            <CardDescription>Verifica todos los detalles antes de publicar</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Summary */}
+            <div className="p-4 bg-(--primary)/10 border border-(--primary)/20 rounded-lg space-y-3">
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Origen:</span>
+                  <span className="font-medium">{origenesDisponibles.find(o => o.apiValue === formData.origen)?.label}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Destino:</span>
+                  <span className="font-medium">{formData.destino}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Hora de Salida:</span>
+                  <span className="font-medium">{formData.hora}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Fecha:</span>
+                  <span className="font-medium">
+                    {formData.diasRecurrentes.length > 0
+                      ? weekDays.find(d => d.id === formData.diasRecurrentes[0])?.fullDate
+                      : 'No seleccionado'}
+                  </span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Asientos Disponibles:</span>
+                  <span className="font-medium">{formData.asientosDisponibles}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-(--border)">
+                  <span className="text-(--muted-foreground)">Precio por Asiento:</span>
+                  <span className="font-medium">${formData.precioPorAsiento.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-(--muted-foreground) font-semibold">Ganancia potencial/viaje:</span>
+                  <span className="font-bold text-(--primary) text-lg">
+                    ${(formData.asientosDisponibles * formData.precioPorAsiento).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
             <div className="space-y-2">
               <Label htmlFor="nota">Nota (Opcional)</Label>
               <Textarea
@@ -414,41 +505,8 @@ export function CreateRouteForm() {
               </p>
             </div>
 
-            {/* Summary */}
-            <div className="p-4 bg-(--primary)/10 border border-(--primary)/20 rounded-lg space-y-3 mt-6">
-              <h4 className="font-semibold text-(--foreground)">Resumen de la Ruta</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-(--muted-foreground)">Origen:</span>
-                  <span className="font-medium">{formData.origen}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--muted-foreground)">Destino:</span>
-                  <span className="font-medium">{formData.destino}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--muted-foreground)">Hora:</span>
-                  <span className="font-medium">{formData.hora}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--muted-foreground)">Fecha:</span>
-                  <span className="font-medium">
-                    {formData.diasRecurrentes.length > 0
-                      ? weekDays.find(d => d.id === formData.diasRecurrentes[0])?.fullDate
-                      : 'No seleccionado'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--muted-foreground)">Ganancia potencial/viaje:</span>
-                  <span className="font-bold text-(--primary)">
-                    ${(formData.asientosDisponibles * formData.precioPorAsiento).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={() => setStep(2)}>
+              <Button variant="outline" onClick={() => setStep(3)}>
                 Atrás
               </Button>
               <Button

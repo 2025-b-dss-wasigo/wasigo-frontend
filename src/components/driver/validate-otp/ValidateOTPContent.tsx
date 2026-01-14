@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
-import { getRouteBookings, markBookingAsNoShow, completeBooking } from '@/actions/drivers/getRouteBookings';
+import { getRouteBookings, markBookingAsNoShow } from '@/actions/drivers/getRouteBookings';
 import { verifyOtp } from '@/actions';
 import { RouteBooking } from '@/interfaces/bookings-route.interface';
 
@@ -31,6 +32,7 @@ interface ValidateOTPContentProps {
 }
 
 export function ValidateOTPContent({ routes }: ValidateOTPContentProps) {
+  const router = useRouter();
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [bookings, setBookings] = useState<RouteBooking[]>([]);
   const [loading, setLoading] = useState(false);
@@ -100,11 +102,10 @@ export function ValidateOTPContent({ routes }: ValidateOTPContentProps) {
         return;
       }
 
-      // Si la validación es exitosa, completar la reserva
-      await completeBooking(bookingId);
+      // Si la validación es exitosa, marcar como validado
       setProcessedBookings(prev => ({ ...prev, [bookingId]: 'validated' }));
       toast.success('OTP validado', {
-        description: 'El pasajero ha sido verificado para este viaje.'
+        description: 'El código OTP ha sido validado correctamente.'
       });
       setPassengerInOtpMode(null);
       setOtpByPassenger(prev => ({ ...prev, [bookingId]: '' }));
@@ -160,6 +161,11 @@ export function ValidateOTPContent({ routes }: ValidateOTPContentProps) {
     toast.success('¡Viaje iniciado!', {
       description: 'Todos los pasajeros han sido procesados. ¡Buen viaje!'
     });
+
+    // Navegar al mapa de la ruta
+    if (selectedRoute) {
+      router.push(`/driver/route/${selectedRoute}`);
+    }
   };
 
   return (

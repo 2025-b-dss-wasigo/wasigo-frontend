@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Sidebar, TopBar } from '@/components';
 import { useSidebarStore } from '@/components/layout/SidebarToggle';
 import { cn } from '@/lib/utils';
@@ -35,29 +36,38 @@ export function LayoutClient({ children, initialProfile }: LayoutClientProps) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={handleMobileClose}
-      />
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '';
 
-      {/* Main Content */}
-      <div className={cn(
-        "transition-all duration-300 min-h-screen",
-        sidebarOpen ? "lg:ml-64" : "lg:ml-20"
-      )}>
-        <TopBar
-          onMenuClick={handleMenuClick}
-          onToggleSidebar={handleToggleSidebar}
-          sidebarOpen={sidebarOpen}
+  return (
+    <PayPalScriptProvider
+      options={{
+        clientId: paypalClientId,
+        currency: 'USD',
+      }}
+    >
+      <div className="min-h-screen bg-background">
+        {/* Sidebar */}
+        <Sidebar
+          isOpen={sidebarOpen}
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={handleMobileClose}
         />
-        <main className="p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+
+        {/* Main Content */}
+        <div className={cn(
+          "transition-all duration-300 min-h-screen",
+          sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+        )}>
+          <TopBar
+            onMenuClick={handleMenuClick}
+            onToggleSidebar={handleToggleSidebar}
+            sidebarOpen={sidebarOpen}
+          />
+          <main className="p-4 md:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </PayPalScriptProvider>
   );
 }

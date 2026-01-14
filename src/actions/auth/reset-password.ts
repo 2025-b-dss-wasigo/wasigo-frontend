@@ -24,7 +24,7 @@ export async function authResetPassword(data: ResetPasswordRequest): Promise<Api
       redirect: "follow"
     };
 
-    const response = await fetch("localhost:3000/api/auth/reset-password", requestOptions)
+    const response = await fetch("http://localhost:3000/api/auth/reset-password", requestOptions)
     return await response.json();
 
   } catch (error) {

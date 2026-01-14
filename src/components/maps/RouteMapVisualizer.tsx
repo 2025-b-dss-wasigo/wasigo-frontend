@@ -31,6 +31,7 @@ export function RouteMapVisualizer({
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const advancedMarkerElementRef = useRef<any>(null);
+  const isFirstLocationRef = useRef(true); // ✅ AGREGADO
   const { toast } = useToast();
 
   // Inicializar Google Maps
@@ -59,49 +60,54 @@ export function RouteMapVisualizer({
             fullscreenControl: false,
             rotateControl: false,
             scaleControl: false,
+            disableDefaultUI: true,
           });
 
           setMap(mapInstance);
 
-          // Crear DirectionsRenderer
+          // ✅ Crear DirectionsRenderer con preserveViewport
           const directionsRenderer = new google.maps.DirectionsRenderer({
             map: mapInstance,
             polylineOptions: {
-              strokeColor: '#3B82F6',
-              strokeWeight: 3,
+              strokeColor: '#0d8a6f',
+              strokeWeight: 5,
+              strokeOpacity: 0.8,
               geodesic: true,
             },
             suppressMarkers: true,
             suppressPolylines: false,
+            preserveViewport: true, // ✅ Mantener viewport fijo
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // Crear marcadores de paradas (Advanced Markers)
+          // ✅ Crear marcadores con el estilo de Passenger
           const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
+          const maxOrden = Math.max(...sortedStops.map(s => s.orden));
 
-          sortedStops.forEach((stop, index) => {
+          sortedStops.forEach((stop) => {
             const position = {
               lat: parseFloat(stop.lat),
               lng: parseFloat(stop.lng),
             };
 
             const markerDiv = document.createElement('div');
-            markerDiv.className = 'flex items-center justify-center w-10 h-10 rounded-full border-2 border-white shadow-lg';
+            markerDiv.className = 'flex items-center justify-center w-10 h-10 rounded-full border-2 border-white shadow-lg text-sm font-bold';
 
-            if (index === 0) {
-              // Destino final - rojo
-              markerDiv.className += ' bg-red-500';
+            if (stop.orden === 1) {
+              markerDiv.className += ' bg-green-500 text-white';
+              markerDiv.innerHTML = '🚀';
+            } else if (stop.orden === maxOrden) {
+              markerDiv.className += ' bg-red-500 text-white';
               markerDiv.innerHTML = '🏁';
             } else {
-              // Paradas intermedias - amarillo
-              markerDiv.className += ' bg-yellow-500';
-              markerDiv.innerHTML = String(index);
+              markerDiv.className += ' bg-yellow-500 text-white';
+              markerDiv.innerHTML = String(stop.orden);
             }
 
             new AdvancedMarkerElement({
               position,
               map: mapInstance,
-              title: index === 0 ? 'Destino Final' : `Parada ${index}`,
+              title: stop.direccion,
               content: markerDiv,
             });
           });
@@ -153,6 +159,13 @@ export function RouteMapVisualizer({
 
         // Centrar mapa en usuario SIEMPRE
         mapInstance.setCenter(userPos);
+
+        // ✅ Si es la primera ubicación, hacer zoom
+        if (isFirstLocationRef.current) {
+          console.log('🎯 Primera ubicación detectada, aplicando zoom 18');
+          mapInstance.setZoom(18);
+          isFirstLocationRef.current = false;
+        }
 
         // Recalcular ruta desde ubicación actual
         const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
@@ -212,7 +225,7 @@ export function RouteMapVisualizer({
     }
   };
 
-  // Actualizar marcador de usuario con icono de carrito
+  // ✅ Actualizar marcador de usuario con el estilo de Passenger
   const updateUserMarker = (
     mapInstance: google.maps.Map,
     position: { lat: number; lng: number },
@@ -222,13 +235,13 @@ export function RouteMapVisualizer({
       userMarkerRef.current.position = position;
     } else {
       const markerDiv = document.createElement('div');
-      markerDiv.className = 'flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full border-2 border-white shadow-lg';
-      markerDiv.innerHTML = '🚗';
+      markerDiv.className = 'flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full border-4 border-white shadow-xl';
+      markerDiv.innerHTML = '<div class="w-3 h-3 bg-white rounded-full animate-pulse"></div>';
 
       const userMarker = new AdvancedMarkerElement({
         position,
         map: mapInstance,
-        title: 'Tu ubicación',
+        title: 'Tu ubicación en tiempo real',
         content: markerDiv,
         zIndex: 1000,
       });
@@ -246,6 +259,19 @@ export function RouteMapVisualizer({
           className="w-full h-full rounded-lg"
           style={{ minHeight: '600px' }}
         />
+
+        {/* ✅ Indicador de actualización estilo Passenger */}
+        {userLocation && (
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 z-10">
+            <div className="flex items-center gap-2 text-xs text-gray-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Siguiendo tu ubicación</span>
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1">
+              Lat: {userLocation.lat.toFixed(5)}, Lng: {userLocation.lng.toFixed(5)}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

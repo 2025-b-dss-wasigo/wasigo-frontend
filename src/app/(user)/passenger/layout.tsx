@@ -4,6 +4,7 @@ import React from 'react';
 import { getRole } from '../../../actions';
 import { UserRole } from '../../../interfaces';
 import { redirect } from 'next/navigation';
+import { PassengerLayoutClient } from '@/components/layout/PassengerLayoutClient';
 
 const routes: Record<UserRole, string> = {
   'USER': '/passenger',
@@ -23,9 +24,11 @@ export default async function PassengerLayout({
     redirect(routes[response.data.role]);
   }
 
+  const userRole = response.data?.role;
+
   return (
-    <div>
+    <PassengerLayoutClient userRole={userRole}>
       {children}
-    </div>
+    </PassengerLayoutClient>
   );
 }

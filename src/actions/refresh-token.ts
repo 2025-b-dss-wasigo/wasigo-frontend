@@ -14,12 +14,10 @@ export async function refreshTokenAction() {
     const result = await response.json();
 
     if (result.success) {
-      console.log('✅ Token refreshed successfully');
       revalidatePath('/', 'layout');
       return { success: true };
     }
 
-    console.log('❌ Token refresh failed');
     return { success: false };
 
   } catch (error) {

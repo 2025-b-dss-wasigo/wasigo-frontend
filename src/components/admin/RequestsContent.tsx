@@ -354,43 +354,56 @@ export function RequestsContent({ drivers, currentStatus }: RequestsContentProps
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-(--foreground)">Solicitudes de Conductor</h1>
-        <p className="text-(--muted-foreground)">Revisa y gestiona las solicitudes para ser conductor</p>
-      </div>
-
-      {/* Tabs */}
-      <Tabs value={currentStatus} onValueChange={(value) => handleTabChange(value as RequestStatus)}>
-        <TabsList>
-          <TabsTrigger value="PENDIENTE">
-            Pendientes
-            <Badge variant="secondary" className="ml-2">{currentStatus === 'PENDIENTE' ? drivers.length : '-'}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="APROBADO">
-            Aprobadas
-            <Badge variant="secondary" className="ml-2">{currentStatus === 'APROBADO' ? drivers.length : '-'}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="RECHAZADO">
-            Rechazadas
-            <Badge variant="secondary" className="ml-2">{currentStatus === 'RECHAZADO' ? drivers.length : '-'}</Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={currentStatus} className="mt-4">
-          <div className="space-y-4">
-            {drivers.map((request) => (
-              <RequestCard key={request.publicId} request={request} onViewDetail={() => { }} />
-            ))}
-            {drivers.length === 0 && (
-              <div className="text-center py-12 text-(--muted-foreground)">
-                No hay solicitudes en esta categoría
-              </div>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+    <div className="space-y-4">
+      {drivers.length === 0 ? (
+        <div className="text-center py-12 text-(--muted-foreground)">
+          No hay solicitudes en esta categoría
+        </div>
+      ) : (
+        drivers.map((request) => (
+          <RequestCard key={request.publicId} request={request} onViewDetail={() => { }} />
+        ))
+      )}
     </div>
+  );
+}
+
+export function RequestsHeader() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-(--foreground)">Solicitudes de Conductor</h1>
+      <p className="text-(--muted-foreground)">Revisa y gestiona las solicitudes para ser conductor</p>
+    </div>
+  );
+}
+
+export function RequestsTabs({ drivers, currentStatus }: { drivers: Driver[]; currentStatus: RequestStatus }) {
+  const router = useRouter();
+
+  const handleTabChange = (status: RequestStatus) => {
+    router.push(`?estado=${status}`);
+  };
+
+  return (
+    <Tabs value={currentStatus} onValueChange={(value) => handleTabChange(value as RequestStatus)}>
+      <TabsList>
+        <TabsTrigger value="PENDIENTE">
+          Pendientes
+          <Badge variant="secondary" className="ml-2">{currentStatus === 'PENDIENTE' ? drivers.length : '-'}</Badge>
+        </TabsTrigger>
+        <TabsTrigger value="APROBADO">
+          Aprobadas
+          <Badge variant="secondary" className="ml-2">{currentStatus === 'APROBADO' ? drivers.length : '-'}</Badge>
+        </TabsTrigger>
+        <TabsTrigger value="RECHAZADO">
+          Rechazadas
+          <Badge variant="secondary" className="ml-2">{currentStatus === 'RECHAZADO' ? drivers.length : '-'}</Badge>
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value={currentStatus} className="mt-4">
+        <RequestsContent drivers={drivers} currentStatus={currentStatus} />
+      </TabsContent>
+    </Tabs>
   );
 }

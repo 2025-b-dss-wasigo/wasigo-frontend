@@ -16,7 +16,6 @@ export const getDriverRequestDetail = async (driverId: string): Promise<ApiRespo
     };
 
     const result = await fetchWithToken<RequestDetailResponse>(url, requestOptions);
-    console.log(result.data)
     return result;
 
   } catch (error) {

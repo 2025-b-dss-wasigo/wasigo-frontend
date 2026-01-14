@@ -1,5 +1,3 @@
-import { Pasajero } from '@/data/mockData';
-
 export interface Ruta {
   id: string;
   conductorId: string;
@@ -58,4 +56,16 @@ export interface FormularioRuta {
   precioPorAsiento: number;
   esRecurrente: boolean;
   nota: string;
+}
+
+export interface Pasajero {
+  id: string;
+  alias: string;
+  calificacion: number;
+  foto?: string;
+  destino: string;
+  metodoPago: 'efectivo' | 'paypal' | 'tarjeta';
+  otp?: string;
+  otpValidado: boolean;
+  estado: 'confirmado' | 'pendiente' | 'cancelado' | 'no_show';
 }

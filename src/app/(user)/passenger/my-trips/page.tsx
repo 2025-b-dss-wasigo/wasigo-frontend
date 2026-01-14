@@ -11,7 +11,7 @@ export default async function MyTripsPage() {
   const response = await getMyBookings();
 
   if (!response.success) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   const bookings = response.data?.data || [];

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { authRegister } from '@/actions';
-import { Button, Input, Label, Checkbox } from '@/components';
+import { Button, Input, Label, Checkbox, FullScreenLoader } from '@/components';
 import { User, Phone, Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -325,7 +325,7 @@ export default function RegisterForm() {
             className="flex-1"
             disabled={loading || !formData.email || !formData.password || !formData.aceptaTerminos || passwordError !== null || !passwordsMatch}
           >
-            {loading ? 'Registrando...' : 'Crear Cuenta'}
+            {loading ? 'Crear Cuenta' : 'Crear Cuenta'}
           </Button>
         </div>
       </div>
@@ -336,6 +336,7 @@ export default function RegisterForm() {
 
   return (
     <>
+      <FullScreenLoader isOpen={loading} message="Registrando..." />
       {successMessage ? (
         <div className="text-center space-y-6 animate-fade-in">
           <div className="w-20 h-20 mx-auto rounded-full bg-(--success)/10 flex items-center justify-center">

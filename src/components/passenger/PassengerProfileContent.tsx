@@ -51,7 +51,6 @@ export const PassengerProfileContent: React.FC = () => {
   if (!user) return null;
 
   const isDriver = user.role === 'CONDUCTOR';
-  const isPassenger = user.role === 'PASAJERO';
 
   return (
     <>

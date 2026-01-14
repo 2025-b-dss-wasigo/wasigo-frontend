@@ -11,10 +11,11 @@ export type { UserRole } from './UserRole.interface';
 export type { ApiResponse } from './responses/ApiResponse.interface';
 export type { RegisterResponse } from './responses/auth/RegisterResponse.interface';
 export type { CreateRouteRequest, GeoPoint, RouteStop, OrigenCampus } from './routes/CreateRouteRequest.interface';
-export type { GetMyRoutesResponse, Route, RouteStop as RouteStopResponse } from './responses/routes/GetMyRoutesResponse.interface';
+export type { GetMyRoutesResponse, RouteStop as RouteStopResponse } from './responses/routes/GetMyRoutesResponse.interface';
 export type { BookingsListData, BookingDetailData, Booking, RouteData, DriverData, UserData, ProfileData, Stop } from './responses/bookings/BookingResponse';
 export type { RouteBooking, BookingsRouteData, BookingsRouteResponse, PassengerProfile, PassengerUser } from './bookings-route.interface';
 export type { RouteMapResponse, RouteMapData, RouteStop as RouteMapStop } from './route-map.interface';
+export type { Route } from './routes/AvailableRoute.interface';
 /**
  * Archivo barril para exportar todas las interfaces
  */

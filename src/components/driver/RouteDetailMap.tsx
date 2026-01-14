@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, MapPin, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { getRouteBookings, completeBooking } from '@/actions/drivers/getRouteBookings';
+import { finalizeRoute } from '@/actions/routes/finalizeRoute';
 import { RouteMapVisualizer } from '@/components/maps';
 import { RouteBooking } from '@/interfaces/bookings-route.interface';
 
@@ -23,14 +25,39 @@ export function RouteDetailMap({
   originCoordinates,
   mapData
 }: RouteDetailMapProps) {
+  const router = useRouter();
   const [bookings, setBookings] = useState<RouteBooking[]>([]);
   const [loading, setLoading] = useState(false);
   const [completedBookings, setCompletedBookings] = useState<Set<string>>(new Set());
 
-  // Cargar pasajeros al montar
+  // Ordenar stops por el campo "orden" de menor a mayor
+  const sortedStops = (mapData?.stops || []).sort((a: any, b: any) => {
+    const ordenA = a.orden || 0;
+    const ordenB = b.orden || 0;
+    return ordenA - ordenB;
+  });
+
+  // Cargar pasajeros y restaurar estado de confirmación al montar
   useEffect(() => {
     loadBookings();
+    // Restaurar completedBookings del sessionStorage
+    const saved = sessionStorage.getItem(`completedBookings_${routeId}`);
+    if (saved) {
+      try {
+        setCompletedBookings(new Set(JSON.parse(saved)));
+      } catch (error) {
+        console.error('Error al restaurar estado:', error);
+      }
+    }
   }, [routeId]);
+
+  // Persistir completedBookings en sessionStorage cuando cambie
+  useEffect(() => {
+    sessionStorage.setItem(
+      `completedBookings_${routeId}`,
+      JSON.stringify(Array.from(completedBookings))
+    );
+  }, [completedBookings, routeId]);
 
   const loadBookings = async () => {
     setLoading(true);
@@ -46,8 +73,8 @@ export function RouteDetailMap({
     }
   };
 
-  // Filtrar pasajeros que deben aparecer en el mapa: otpUsado === true Y estado === "CONFIRMADA"
-  const visibleBookings = bookings.filter(b => b.otpUsado && b.estado === 'CONFIRMADA');
+  // Filtrar pasajeros que deben aparecer en el mapa: otpUsado === true
+  const visibleBookings = bookings.filter(b => b.otpUsado);
 
   const handleConfirmStop = async (bookingId: string) => {
     setLoading(true);
@@ -67,9 +94,9 @@ export function RouteDetailMap({
   };
 
   const handleEndRoute = async () => {
-    const allConfirmed = visibleBookings.every(b => completedBookings.has(b.publicId));
-    if (!allConfirmed) {
-      toast.error('Ruta incompleta', {
+    // Si hay pasajeros, todos deben estar confirmados
+    if (visibleBookings.length > 0 && completedBookings.size !== visibleBookings.length) {
+      toast.error('Pasajeros pendientes', {
         description: 'Todos los pasajeros deben ser confirmados antes de finalizar.'
       });
       return;
@@ -77,10 +104,19 @@ export function RouteDetailMap({
 
     setLoading(true);
     try {
-      toast.success('¡Ruta finalizada!', {
-        description: 'Todos los pasajeros han sido confirmados exitosamente.'
-      });
-      // Aquí iría la llamada a endpoint para finalizar la ruta
+      const response = await finalizeRoute(routeId);
+
+      if (response.success) {
+        // Limpiar sessionStorage después de finalizar
+        sessionStorage.removeItem(`completedBookings_${routeId}`);
+
+        // Redirigir al inicio (driver home)
+        router.push('/driver');
+      } else {
+        toast.error('Error', {
+          description: response.message || 'No se pudo finalizar la ruta'
+        });
+      }
     } catch (error: any) {
       toast.error('Error', {
         description: error.message || 'No se pudo finalizar la ruta',
@@ -101,7 +137,7 @@ export function RouteDetailMap({
             <CardContent className="p-0 h-96">
               <RouteMapVisualizer
                 originCoordinates={originCoordinates}
-                stops={mapData?.stops || []}
+                stops={sortedStops}
               />
             </CardContent>
           </Card>
@@ -160,12 +196,12 @@ export function RouteDetailMap({
           )}
 
           {/* Botón Finalizar Ruta */}
-          {visibleBookings.length > 0 && routeDetails?.estado !== 'FINALIZADA' && (
+          {routeDetails?.estado !== 'FINALIZADA' && (
             <Card>
               <CardContent className="p-4">
                 <Button
                   onClick={handleEndRoute}
-                  disabled={loading || completedBookings.size !== visibleBookings.length}
+                  disabled={loading || (visibleBookings.length > 0 && completedBookings.size !== visibleBookings.length)}
                   className="w-full"
                   size="lg"
                 >

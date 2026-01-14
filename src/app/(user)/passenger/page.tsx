@@ -3,15 +3,16 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, DollarSign, Star, AlertCircle, ArrowRight, Eye, EyeOff, Copy, Check } from 'lucide-react';
+import { MapPin, Clock, DollarSign, Star, Eye, EyeOff, Copy, Check, CheckIcon, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '../../../store/authStore';
 import { getMyBookings } from '@/actions';
 import { Booking } from '@/interfaces';
 import { toast } from 'sonner';
+import { PassengerPaymentsSection } from '@/components/passenger/PassengerPaymentsSection';
 
 export default function PassengerDashboardPage() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
   const router = useRouter();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -38,6 +39,24 @@ export default function PassengerDashboardPage() {
       loadBookings();
     }
   }, [isAuthenticated]);
+
+  // Si el usuario es USER (no verificado), mostrar solo la tarjeta de verificación
+  if (user?.role === 'USER') {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
+          <div className="rounded-lg border border-(--border) bg-(--background) p-8 text-center">
+            <CheckIcon className="w-12 h-12 mx-auto text-(--muted-foreground) mb-3" />
+            <h3 className="text-lg font-semibold text-(--foreground) mb-2">Verifica tu cuenta primero</h3>
+            <p className="text-(--muted-foreground) mb-4">Una vez que verifiques tu identidad, podrás ver y reservar viajes disponibles</p>
+            <Button asChild>
+              <Link href="/passenger/profile">Ir a Mi Perfil</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Obtener el próximo viaje más cercano
   const getProximoViaje = () => {
@@ -82,7 +101,7 @@ export default function PassengerDashboardPage() {
   const viajesCompletados = getViajesCompletados();
 
   const handleVerEnMapa = (viajeId: string) => {
-    router.push(`/passenger-route/${viajeId}`);
+    router.push(`/passenger/route/${viajeId}`);
   };
 
   const toggleOTPVisibility = (bookingId: string) => {
@@ -145,8 +164,50 @@ export default function PassengerDashboardPage() {
                     </div>
                   </div>
 
-                  {/* OTP */}
-                  {!proximoViaje.otpUsado && proximoViaje.otp && (
+                  {/* OTP - Solo mostrar si es EFECTIVO y tiene OTP */}
+                  {!proximoViaje.otpUsado && proximoViaje.otp && proximoViaje.metodoPago?.toUpperCase() === 'EFECTIVO' && (
+                    <div className="border-t border-(--border) pt-4 mt-4">
+                      <p className="text-xs font-semibold text-(--muted-foreground) mb-3 uppercase">Tu código OTP</p>
+                      <div className="flex items-center justify-between bg-(--primary)/5 p-3 rounded-lg border border-(--primary)/10">
+                        <div>
+                          {visibleOTP === proximoViaje.publicId ? (
+                            <p className="text-2xl font-bold text-(--primary) tracking-wider font-mono">{proximoViaje.otp}</p>
+                          ) : (
+                            <p className="text-2xl font-bold text-(--primary) tracking-wider font-mono">{'•'.repeat(proximoViaje.otp.length)}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => toggleOTPVisibility(proximoViaje.publicId)}
+                            title={visibleOTP === proximoViaje.publicId ? 'Ocultar OTP' : 'Mostrar OTP'}
+                          >
+                            {visibleOTP === proximoViaje.publicId ? (
+                              <Eye className="w-5 h-5" />
+                            ) : (
+                              <EyeOff className="w-5 h-5" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => copyOTP(proximoViaje.otp!)}
+                            title="Copiar OTP"
+                          >
+                            {copiedOTP === proximoViaje.otp ? (
+                              <Check className="w-5 h-5 text-success" />
+                            ) : (
+                              <Copy className="w-5 h-5" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* OTP - Mostrar si CONFIRMADA y otpUsado es true */}
+                  {proximoViaje.otpUsado && proximoViaje.otp && proximoViaje.estado?.toUpperCase() === 'CONFIRMADA' && (
                     <div className="border-t border-(--border) pt-4 mt-4">
                       <p className="text-xs font-semibold text-(--muted-foreground) mb-3 uppercase">Tu código OTP</p>
                       <div className="flex items-center justify-between bg-(--primary)/5 p-3 rounded-lg border border-(--primary)/10">
@@ -190,19 +251,29 @@ export default function PassengerDashboardPage() {
 
                 {/* Acciones */}
                 <div className="flex flex-col gap-3 md:justify-center">
+                  {proximoViaje.paymentStatus === 'PENDING' && (proximoViaje.metodoPago?.toUpperCase() === 'PAYPAL' || proximoViaje.metodoPago?.toUpperCase() === 'TARJETA') ? (
+                    <Button
+                      onClick={() => router.push('/passenger/my-trips')}
+                      className="bg-(--warning) hover:bg-(--warning)/90 text-white w-full font-semibold flex items-center justify-center gap-2"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Pagar
+                    </Button>
+                  ) : proximoViaje.otpUsado && proximoViaje.estado?.toUpperCase() === 'CONFIRMADA' ? (
+                    <Button
+                      onClick={() => handleVerEnMapa(proximoViaje.publicId)}
+                      className="bg-(--primary) hover:bg-(--primary)/90 text-white w-full font-semibold flex items-center justify-center gap-2"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      Ver en Mapa
+                    </Button>
+                  ) : null}
                   <Button
-                    onClick={() => handleVerEnMapa(proximoViaje.publicId)}
-                    className="bg-(--primary) hover:bg-(--primary)/90 text-white w-full font-semibold flex items-center justify-center gap-2"
-                  >
-                    <MapPin className="w-4 h-4" />
-                    Ver en Mapa
-                  </Button>
-                  <Button
+                    onClick={() => router.push('/passenger/my-trips')}
                     variant="outline"
-                    className="w-full font-semibold flex items-center justify-center gap-2"
+                    className="w-full"
                   >
-                    <Eye className="w-4 h-4" />
-                    Ver Detalles OTP
+                    Ver todos
                   </Button>
                 </div>
               </div>
@@ -221,7 +292,7 @@ export default function PassengerDashboardPage() {
 
         {/* Viajes Completados */}
         {viajesCompletados.length > 0 && (
-          <div>
+          <div className="mb-8">
             <h3 className="text-lg font-bold mb-4 text-(--foreground)">Viajes Completados</h3>
             <div className="space-y-3">
               {viajesCompletados.map((booking) => (
@@ -244,6 +315,11 @@ export default function PassengerDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Sección de Pagos */}
+        <div>
+          <PassengerPaymentsSection />
+        </div>
       </div>
     </div>
   );

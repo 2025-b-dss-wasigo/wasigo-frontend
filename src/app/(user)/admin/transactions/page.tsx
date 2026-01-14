@@ -1,16 +1,23 @@
-import { ClientOnly } from '@/components/common/ClientOnly';
-import { TransactionsContent } from '@/components/admin/TransactionsContent';
-import { TransactionsTableSkeleton } from '@/components/common/SkeletonLoaders';
-import { obtenerTransacciones } from '@/lib/adminData';
+import { Suspense } from 'react';
+import { AdminTransactionsContent } from '@/components/admin/AdminTransactionsContent';
+import { PayoutsListSkeleton } from '@/components/common/SkeletonLoaders';
+import { getAllPayouts } from '@/actions/payouts/all';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TransactionsPage() {
-  const transacciones = await obtenerTransacciones();
+async function TransactionsData() {
+  const payoutsResponse = await getAllPayouts();
+  const payouts = payoutsResponse.data?.data || [];
 
+  return <AdminTransactionsContent payouts={payouts} />;
+}
+
+export default function TransactionsPage() {
   return (
-    <ClientOnly fallback={<TransactionsTableSkeleton />}>
-      <TransactionsContent transacciones={transacciones} />
-    </ClientOnly>
+    <div className="space-y-6">
+      <Suspense fallback={<PayoutsListSkeleton />}>
+        <TransactionsData />
+      </Suspense>
+    </div>
   );
 }

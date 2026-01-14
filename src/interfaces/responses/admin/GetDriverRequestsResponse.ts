@@ -1,4 +1,5 @@
 export interface GetDriverRequestsResponse {
+  slice(arg0: number, arg1: number): unknown;
   drivers: Driver[];
   total: number;
 }

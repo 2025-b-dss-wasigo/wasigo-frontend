@@ -14,7 +14,7 @@ export default async function AuthLayout({
   const refreshToken = await getRefreshToken();
 
   if (!token && !refreshToken) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   const [profileResponse, roleResponse] = await Promise.all([
@@ -23,11 +23,11 @@ export default async function AuthLayout({
   ]);
 
   if (!profileResponse.success || !profileResponse.data) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   if (!roleResponse.success || !roleResponse.data) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   return (

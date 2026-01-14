@@ -71,6 +71,8 @@ export interface Booking {
   otpUsado: boolean;
   metodoPago: string;
   otp: string;
+  paymentStatus?: 'PENDING' | 'PAID' | 'FAILED';
+  paymentId?: string;
   createdAt: string;
   updatedAt: string;
   cancelledAt: string | null;

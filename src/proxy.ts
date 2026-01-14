@@ -47,9 +47,7 @@ export async function proxy(request: NextRequest) {
     } catch (error) {
       // Failed to refresh tokens; proceed without updating cookies so the request can continue.
       if (error instanceof Error) {
-        console.error('Failed to refresh auth tokens:', error.message, error.stack);
       } else {
-        console.error('Failed to refresh auth tokens:', error);
       }
     }
   }

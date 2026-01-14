@@ -17,27 +17,6 @@ export default function DebugPanel({ routeData }: DebugPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
 
-  useEffect(() => {
-    // Interceptar console.log para mostrar en el panel
-    const originalLog = console.log;
-    console.log = function (...args) {
-      originalLog.apply(console, args);
-      if (args[0] && typeof args[0] === "string") {
-        if (
-          args[0].includes("Enviando posición") ||
-          args[0].includes("Lugar seleccionado") ||
-          args[0].includes("Ruta calculada")
-        ) {
-          setLogs((prev) => [...prev.slice(-4), `${new Date().toLocaleTimeString()}: ${args[0]}`]);
-        }
-      }
-    };
-
-    return () => {
-      console.log = originalLog;
-    };
-  }, []);
-
   if (!isOpen) {
     return (
       <Button

@@ -14,12 +14,6 @@ export const setAccessToken = async (accessToken: string, expiresIn: number): Pr
     maxAge: expiresIn,
     path: '/',
   });
-
-  console.log('Access token set:', {
-    expiresIn,
-    secure: isProduction,
-    environment: process.env.NODE_ENV
-  });
 }
 
 export const setRefreshToken = async (refreshToken: string, expiresIn: number): Promise<void> => {
@@ -31,12 +25,6 @@ export const setRefreshToken = async (refreshToken: string, expiresIn: number): 
     sameSite: 'lax',
     maxAge: expiresIn,
     path: '/',
-  });
-
-  console.log('Refresh token set:', {
-    expiresIn,
-    secure: isProduction,
-    environment: process.env.NODE_ENV
   });
 }
 

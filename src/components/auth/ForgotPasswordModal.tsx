@@ -54,14 +54,12 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
     setLoading(true);
 
     try {
-      console.log('[ForgotPasswordModal] Enviando solicitud de recuperación para:', email);
       const response = await authForgotPassword({ email });
 
       if (response.data) {
         const successMsg = 'Se envió un enlace de recuperación a tu correo.';
         setSuccess(successMsg);
         toast.success(successMsg);
-        console.log('[ForgotPasswordModal] Código enviado exitosamente');
 
         // Avanzar al siguiente paso después de 1 segundo
         setTimeout(() => {
@@ -109,7 +107,6 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
     setLoading(true);
 
     try {
-      console.log('[ForgotPasswordModal] Reseteando contraseña...');
       const response = await authResetPassword({
         token: token.trim(),
         newPassword,
@@ -119,7 +116,6 @@ export default function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswo
         const successMsg = '¡Contraseña actualizada! Cerrando...';
         setSuccess(successMsg);
         toast.success('Contraseña actualizada exitosamente');
-        console.log('[ForgotPasswordModal] Contraseña reseteada exitosamente');
 
         // Cerrar modal después de 2 segundos
         setTimeout(() => {

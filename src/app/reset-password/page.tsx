@@ -50,7 +50,6 @@ function ResetPasswordContent() {
     setLoading(true);
 
     try {
-      console.log('[ResetPasswordPage] Reseteando contraseña con token:', token);
       const response = await authResetPassword({
         token,
         newPassword,
@@ -60,7 +59,6 @@ function ResetPasswordContent() {
         const successMsg = '¡Contraseña actualizada! Redirigiendo a login...';
         setSuccess(successMsg);
         toast.success('Contraseña actualizada exitosamente');
-        console.log('[ResetPasswordPage] Contraseña reseteada exitosamente');
 
         // Redirigir a login después de 2 segundos
         setTimeout(() => {
