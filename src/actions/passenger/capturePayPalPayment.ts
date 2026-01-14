@@ -24,7 +24,7 @@ export async function capturePayPalPayment(
     return result;
 
   } catch (error) {
-    console.error('Error capturing PayPal payment:', error);
+    console.error('Error capturing PayPal payment:');
     return {
       success: false,
       error: null,

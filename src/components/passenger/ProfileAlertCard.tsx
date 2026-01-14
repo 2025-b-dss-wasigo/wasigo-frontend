@@ -204,17 +204,11 @@ export const ProfileAlertCard: React.FC<ProfileAlertCardProps> = ({
         </Card>
         <VerificationModal
           open={verificationModalOpen}
+          onVerificationSuccess={() => {
+            setVerificationCompleted(true);
+          }}
           onOpenChange={(newOpen) => {
-            // Cuando el modal se cierra (newOpen = false y estaba abierto)
-            if (!newOpen && verificationModalOpen) {
-              setVerificationModalOpen(false);
-              // Mostrar la tarjeta de verificación completada
-              setTimeout(() => {
-                setVerificationCompleted(true);
-              }, 100);
-            } else {
-              setVerificationModalOpen(newOpen);
-            }
+            setVerificationModalOpen(newOpen);
           }}
         />
       </>

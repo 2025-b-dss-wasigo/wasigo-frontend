@@ -7,6 +7,11 @@ import { getMyBookings } from '@/actions';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Mis Viajes',
+  description: 'Visualiza todos tus viajes reservados, activos y completados',
+};
+
 export default async function MyTripsPage() {
   const response = await getMyBookings();
 

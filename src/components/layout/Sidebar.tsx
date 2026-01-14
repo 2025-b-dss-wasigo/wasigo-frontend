@@ -180,11 +180,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, mobileOpen, onMobileCl
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-(--sidebar-border)">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-(--sidebar-primary) flex items-center justify-center">
-              <Car className="w-6 h-6 text-(--sidebar-primary-foreground)" />
-            </div>
+        <div className="h-16 flex items-center justify-between border-b border-(--sidebar-border)">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.webp"
+              alt="WasiGo"
+              width={40}
+              height={40}
+              className="w-20 h-15"
+            />
             {isOpen && (
               <span className="text-xl font-bold text-(--sidebar-foreground)">WasiGo</span>
             )}

@@ -5,6 +5,11 @@ import { getMyRoutes } from '@/actions';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Mis Rutas',
+  description: 'Visualiza tus rutas.',
+};
+
 async function MyRoutesData() {
   const response = await getMyRoutes();
 

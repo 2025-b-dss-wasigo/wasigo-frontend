@@ -23,7 +23,7 @@ export async function createPayPalOrder(
     return result;
 
   } catch (error) {
-    console.error('Error creating PayPal order:', error);
+    console.error('Error creating PayPal order:');
     return {
       success: false,
       error: null,

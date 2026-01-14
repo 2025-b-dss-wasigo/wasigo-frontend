@@ -12,11 +12,13 @@ import { FullScreenLoader } from './FullScreenLoader';
 interface VerificationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onVerificationSuccess?: () => void;
 }
 
 export const VerificationModal: React.FC<VerificationModalProps> = ({
   open,
   onOpenChange,
+  onVerificationSuccess,
 }) => {
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +86,9 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 
       if (response.success) {
         setIsLoading(false);
-        // ✅ Solo cerrar el modal, sin actualizar authStore ni mostrar modales
+        if (onVerificationSuccess) {
+          onVerificationSuccess();
+        }
         onOpenChange(false);
         return;
       }

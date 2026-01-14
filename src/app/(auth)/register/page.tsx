@@ -1,6 +1,11 @@
 import { Car, CheckCircle } from 'lucide-react';
 import { RegisterForm } from '@/components';
 
+export const metadata = {
+  title: 'Registro',
+  description: 'Crea tu cuenta.',
+};
+
 export default function RegisterPage() {
   return (
     <div className="min-h-screen flex">

@@ -8,6 +8,8 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
 export async function authResetPassword(data: ResetPasswordRequest): Promise<ApiResponse<{ message: string }>> {
 
   try {
@@ -24,7 +26,7 @@ export async function authResetPassword(data: ResetPasswordRequest): Promise<Api
       redirect: "follow"
     };
 
-    const response = await fetch("http://localhost:3000/api/auth/reset-password", requestOptions)
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, requestOptions)
     return await response.json();
 
   } catch (error) {

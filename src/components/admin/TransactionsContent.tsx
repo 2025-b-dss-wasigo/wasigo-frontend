@@ -60,62 +60,6 @@ export function TransactionsContent() {
         </Button>
       </div>
 
-      {/* Stats */}
-      {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-(--success)/10 to-(--success)/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-(--success)/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-(--success)" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-(--foreground)">${totalIngresos.toFixed(2)}</p>
-                <p className="text-xs text-(--muted-foreground)">Total Ingresos</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-(--info)/10 rounded-full flex items-center justify-center">
-                <ArrowDownRight className="w-5 h-5 text-(--info)" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-(--foreground)">${totalEgresos.toFixed(2)}</p>
-                <p className="text-xs text-(--muted-foreground)">Total Retiros</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-(--warning)/10 rounded-full flex items-center justify-center">
-                <RotateCcw className="w-5 h-5 text-(--warning)" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-(--foreground)">${totalPendientes.toFixed(2)}</p>
-                <p className="text-xs text-(--muted-foreground)">Pendientes</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-(--primary)/10 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-(--primary)" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-(--foreground)">{transacciones.length}</p>
-                <p className="text-xs text-(--muted-foreground)">Total Transacciones</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div> */}
-
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">

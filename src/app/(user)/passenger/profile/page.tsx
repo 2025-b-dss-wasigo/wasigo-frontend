@@ -6,6 +6,11 @@ import {
   ProfileTabsSkeleton,
 } from '@/components/passenger/ProfileSkeleton';
 
+export const metadata = {
+  title: 'Mi Perfil',
+  description: 'Gestiona tu perfil, documentos de verificación y datos personales',
+};
+
 export default function PassengerProfilePage() {
   return (
     <Suspense

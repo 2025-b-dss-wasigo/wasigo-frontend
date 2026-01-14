@@ -4,6 +4,11 @@ import { ValidateOTPContent } from '@/components/driver/validate-otp';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Validar OTP',
+  description: 'Inicia una ruta.',
+};
+
 export default async function ValidarOTPPage() {
   let routes = [];
 

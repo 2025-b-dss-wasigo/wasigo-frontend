@@ -301,9 +301,9 @@ export default function RegisterForm() {
           />
           <label htmlFor="terminos" className="text-sm text-(--muted-foreground) cursor-pointer">
             Acepto los{' '}
-            <Link href="/terminos" className="text-(--primary) hover:underline">Términos y Condiciones</Link>
+            <Link href="/terms" className="text-(--primary) hover:underline">Términos y Condiciones</Link>
             {' '}y la{' '}
-            <Link href="/privacidad" className="text-(--primary) hover:underline">Política de Privacidad</Link>
+            <Link href="/privacy" className="text-(--primary) hover:underline">Política de Privacidad</Link>
           </label>
         </div>
 

@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Crear orden PayPal en nuestro backend usando el token del usuario
     const response = await fetchWithToken(
       `${process.env.NEXT_PUBLIC_API_URL}/payments/${paymentId}/paypal/create`,
       {

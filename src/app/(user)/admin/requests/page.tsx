@@ -9,6 +9,11 @@ interface RequestsPageProps {
   searchParams: Promise<{ estado?: string }>;
 }
 
+export const metadata = {
+  title: 'Solicitudes',
+  description: 'Revisa las solicitudes de conductor',
+};
+
 async function RequestsContentWrapper({ searchParams }: RequestsPageProps) {
   const params = await searchParams;
 

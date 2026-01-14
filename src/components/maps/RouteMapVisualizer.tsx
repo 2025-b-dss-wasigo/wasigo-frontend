@@ -31,10 +31,9 @@ export function RouteMapVisualizer({
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const advancedMarkerElementRef = useRef<any>(null);
-  const isFirstLocationRef = useRef(true); // ✅ AGREGADO
+  const isFirstLocationRef = useRef(true);
   const { toast } = useToast();
 
-  // Inicializar Google Maps
   useEffect(() => {
     const initializeMap = async () => {
       try {
@@ -65,7 +64,6 @@ export function RouteMapVisualizer({
 
           setMap(mapInstance);
 
-          // ✅ Crear DirectionsRenderer con preserveViewport
           const directionsRenderer = new google.maps.DirectionsRenderer({
             map: mapInstance,
             polylineOptions: {
@@ -76,11 +74,10 @@ export function RouteMapVisualizer({
             },
             suppressMarkers: true,
             suppressPolylines: false,
-            preserveViewport: true, // ✅ Mantener viewport fijo
+            preserveViewport: true,
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // ✅ Crear marcadores con el estilo de Passenger
           const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
           const maxOrden = Math.max(...sortedStops.map(s => s.orden));
 
@@ -114,7 +111,6 @@ export function RouteMapVisualizer({
 
           setLoading(false);
 
-          // Iniciar seguimiento de ubicación automáticamente
           startTracking(mapInstance);
         }
       } catch (error) {
@@ -126,7 +122,6 @@ export function RouteMapVisualizer({
     initializeMap();
   }, [originCoordinates, stops]);
 
-  // Limpiar watch position al desmontar
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
@@ -135,7 +130,6 @@ export function RouteMapVisualizer({
     };
   }, []);
 
-  // Iniciar seguimiento de ubicación automáticamente
   const startTracking = (mapInstance: google.maps.Map) => {
     if (!navigator.geolocation) {
       toast({
@@ -154,20 +148,15 @@ export function RouteMapVisualizer({
         };
         setUserLocation(userPos);
 
-        // Actualizar marcador de usuario
         updateUserMarker(mapInstance, userPos, advancedMarkerElementRef.current);
 
-        // Centrar mapa en usuario SIEMPRE
         mapInstance.setCenter(userPos);
 
-        // ✅ Si es la primera ubicación, hacer zoom
         if (isFirstLocationRef.current) {
-          console.log('🎯 Primera ubicación detectada, aplicando zoom 18');
           mapInstance.setZoom(18);
           isFirstLocationRef.current = false;
         }
 
-        // Recalcular ruta desde ubicación actual
         const sortedStops = [...stops].sort((a, b) => a.orden - b.orden);
         if (sortedStops.length > 0 && directionsRendererRef.current) {
           drawRoute(userPos, sortedStops, directionsRendererRef.current);
@@ -191,7 +180,6 @@ export function RouteMapVisualizer({
     );
   };
 
-  // Dibujar ruta con Directions Service
   const drawRoute = async (
     origin: { lat: number; lng: number },
     routeStops: RouteStop[],
@@ -225,7 +213,6 @@ export function RouteMapVisualizer({
     }
   };
 
-  // ✅ Actualizar marcador de usuario con el estilo de Passenger
   const updateUserMarker = (
     mapInstance: google.maps.Map,
     position: { lat: number; lng: number },
@@ -260,7 +247,6 @@ export function RouteMapVisualizer({
           style={{ minHeight: '600px' }}
         />
 
-        {/* ✅ Indicador de actualización estilo Passenger */}
         {userLocation && (
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 z-10">
             <div className="flex items-center gap-2 text-xs text-gray-700">

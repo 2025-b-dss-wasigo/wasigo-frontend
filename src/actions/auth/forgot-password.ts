@@ -7,6 +7,8 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
 export async function authForgotPassword(data: ForgotPasswordRequest): Promise<ApiResponse<{ message: string }>> {
 
   try {
@@ -23,7 +25,7 @@ export async function authForgotPassword(data: ForgotPasswordRequest): Promise<A
       redirect: "follow"
     };
 
-    const response = await fetch("http://localhost:3000/api/auth/forgot-password", requestOptions)
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, requestOptions)
     return await response.json();
 
   } catch (error) {
